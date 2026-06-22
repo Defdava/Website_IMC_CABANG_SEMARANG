@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== USERS COLLECTION =====
+    // Stores user profiles: role, class, name, email, phone
+    match /users/{userId} {
+      // Anyone logged in can read their own profile
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // Admin can read all users
+      allow read: if request.auth != null && getUserRole(request.auth.uid) == 'admin';
+      // Users can create their own profile on first login
+      allow create: if request.auth != null && request.auth.uid == userId;
+      // Users can update their own profile (but not change role)
+      allow update: if request.auth != null && request.auth.uid == userId
+                    && request.resource.data.role == resource.data.role;
+      // Admin can update any user (including role assignment)
+      allow update: if request.auth != null && getUserRole(request.auth.uid) == 'admin';
+    }
+
+    // ===== MATERIALS COLLECTION =====
+    // Stores uploaded learning materials metadata
+    match /materials/{materialId} {
+      // Logged-in users can read materials targeted to their class
+      allow read: if request.auth != null;
+      // Admin and Pengajar can create materials
+      allow create: if request.auth != null 
+                    && (getUserRole(request.auth.uid) == 'admin' 
+                        || getUserRole(request.auth.uid) == 'pengajar');
+      // Admin and Pengajar can update/delete their own materials
+      allow update, delete: if request.auth != null 
+                            && (getUserRole(request.auth.uid) == 'admin' 
+                                || (getUserRole(request.auth.uid) == 'pengajar' 
+                                    && resource.data.uploadedBy == request.auth.uid));
+    }
+
+    // ===== SCHEDULES COLLECTION =====
+    // Stores teaching schedule availability
+    match /schedules/{scheduleId} {
+      // All logged-in users can read schedules
+      allow read: if request.auth != null;
+      // Admin and Pengajar can create schedules
+      allow create: if request.auth != null 
+                    && (getUserRole(request.auth.uid) == 'admin' 
+                        || getUserRole(request.auth.uid) == 'pengajar');
+      // Admin can update/delete any schedule; Pengajar can update/delete their own
+      allow update, delete: if request.auth != null 
+                            && (getUserRole(request.auth.uid) == 'admin' 
+                                || (getUserRole(request.auth.uid) == 'pengajar' 
+                                    && resource.data.createdBy == request.auth.uid));
+    }
+
+    // ===== QUIZ RESULTS COLLECTION =====
+    // Stores student quiz/tryout results
+    match /quizResults/{resultId} {
+      // Students can read their own results
+      allow read: if request.auth != null && resource.data.studentId == request.auth.uid;
+      // Admin and Pengajar can read all results
+      allow read: if request.auth != null 
+                  && (getUserRole(request.auth.uid) == 'admin' 
+                      || getUserRole(request.auth.uid) == 'pengajar');
+      // Students can create their own results (submitting quiz)
+      allow create: if request.auth != null && request.resource.data.studentId == request.auth.uid;
+    }
+
+    // ===== ANNOUNCEMENTS COLLECTION =====
+    // Stores announcements/notifications
+    match /announcements/{announcementId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null 
+                                    && (getUserRole(request.auth.uid) == 'admin' 
+                                        || getUserRole(request.auth.uid) == 'pengajar');
+    }
+
+    // ===== HELPER FUNCTION =====
+    function getUserRole(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.role;
+    }
+  }
+}

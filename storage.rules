@@ -1,0 +1,22 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Materials folder - only admin and pengajar can upload
+    match /materials/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && (getUserRole(request.auth.uid) == 'admin' 
+                       || getUserRole(request.auth.uid) == 'pengajar');
+    }
+
+    // Profile pictures - users can upload their own
+    match /profiles/{userId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    function getUserRole(uid) {
+      return firestore.get(/databases/(default)/documents/users/$(uid)).data.role;
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+    "name": "Indonesia Mind Center - Bimbel Terbaik",
+    "short_name": "IMC",
+    "description": "Platform bimbingan belajar terbaik untuk Kedinasan, Kedokteran, dan Universitas favorit.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#f8fafc",
+    "theme_color": "#E63946",
+    "orientation": "portrait-primary",
+    "scope": "./",
+    "lang": "id",
+    "categories": ["education"],
+    "icons": [
+        {
+            "src": "icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Bank Soal",
+            "short_name": "Soal",
+            "url": "./index.html#bank-soal"
+        },
+        {
+            "name": "Quiz",
+            "short_name": "Quiz",
+            "url": "./index.html#quiz"
+        }
+    ]
+}
