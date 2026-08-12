@@ -11,8 +11,8 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script>
-        const SUPABASE_URL = "https://nxsnxbvzwzigfmbvasfq.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_4mORAUlpSx0ZJb-7rOZ6BQ_oTtTnX2M";
+        const SUPABASE_URL = "https://zebkuktclorfbccdzyxg.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplYmt1a3RjbG9yZmJjY2R6eXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1MjkxOTgsImV4cCI6MjEwMjEwNTE5OH0.VfIbV8iXSK9Kf0uWbtMgNJ76tHcMcTOzpqbJvQOJVhI";
 
         window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("✅ Supabase IMC siap");
@@ -426,10 +426,8 @@
                 </select>
             </div>
             <div class="form-group" id="regClassWrap" style="display:none;">
-                <label class="form-label">Kelas</label>
-                <select id="regClass" class="form-select">
-                    <option value="" disabled selected>Pilih Kelas</option>
-                </select>
+                <label class="form-label">Kelas (bisa lebih dari satu)</label>
+                <div id="regClassCheckboxes" class="checkbox-kelas-wrap"></div>
             </div>
             <div class="form-group" id="regClassesPengajarWrap" style="display:none;">
                 <label class="form-label">Kelas yang Diajar (bisa lebih dari satu)</label>
@@ -456,10 +454,8 @@
         </div>
 
         <div class="form-group" id="editKelasWrap" style="display:none;">
-            <label class="form-label">Kelas</label>
-            <select id="editKelas" class="form-select">
-                <option value="" disabled selected>Pilih Kelas</option>
-            </select>
+            <label class="form-label">Kelas (bisa lebih dari satu)</label>
+            <div id="editClassCheckboxesSiswa" class="checkbox-kelas-wrap"></div>
         </div>
 
         <div class="form-group" id="editKelasListWrap" style="display:none;">
@@ -490,10 +486,8 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Kelas</label>
-            <select id="adminEditKelas" class="form-select">
-                <option value="" disabled selected>Pilih Kelas</option>
-            </select>
+            <label class="form-label">Kelas (bisa lebih dari satu)</label>
+            <div id="adminEditKelasCheckboxes" class="checkbox-kelas-wrap"></div>
         </div>
 
         <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
@@ -503,7 +497,7 @@
     </div>
 </div>
 
-<!-- JADWAL MODAL (pengajar) -->
+<!-- JADWAL MODAL (pengajar / admin) -->
 <div id="jadwalModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-regular fa-calendar-plus" style="color:var(--red);margin-right:0.5rem;"></i> Tambah Jadwal</div>
@@ -658,6 +652,9 @@ const KELAS_KATEGORI = {
         { value: "CPNS",      label: "CPNS" },
         { value: "BINTARA",   label: "Bintara" },
         { value: "PIP",       label: "PIP" },
+    ],
+    "KEDINASAN GABUNGAN": [
+        { value: "KEDINASAN-GABUNGAN", label: "Kedinasan Gabungan" },
     ]
 };
 
@@ -684,8 +681,9 @@ function getLabelKelas(value) {
 window.isLoggedIn = false;
 window.currentUser = null;
 window.currentUserRole = null;
-window.currentUserClass = null;
+window.currentUserClassList = [];
 window.currentUserName = null;
+window.adminIsAddingJadwal = false;
 let currentView = 'public';
 let editingSiswaId = null;
 let editingJadwalId = null;
@@ -802,7 +800,7 @@ function translateSupabaseError(msg='') {
 // AUTH MODAL
 // ==============================
 window.showAuth = function() {
-    document.getElementById('regClass').innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + renderKelasOptionsGrouped();
+    document.getElementById('regClassCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
     document.getElementById('classCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
     document.getElementById('reg-email-info').style.display = 'flex';
     document.getElementById('authModal').classList.add('show');
@@ -832,8 +830,11 @@ window.openEditProfile = function() {
     document.getElementById('editKelasListWrap').style.display = role === 'pengajar' ? 'block' : 'none';
 
     if (role === 'siswa') {
-        document.getElementById('editKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + renderKelasOptionsGrouped();
-        document.getElementById('editKelas').value = window.currentUserClass || '';
+        document.getElementById('editClassCheckboxesSiswa').innerHTML = renderKelasCheckboxesGrouped();
+        const kelasList = window.currentUser?.kelas_list || [];
+        document.querySelectorAll('#editClassCheckboxesSiswa input[type="checkbox"]').forEach(cb => {
+            cb.checked = kelasList.includes(cb.value);
+        });
     } else if (role === 'pengajar') {
         document.getElementById('editClassCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
         const kelasList = window.currentUser?.kelas_list || [];
@@ -854,9 +855,9 @@ window.submitEditProfile = async function() {
     let updateData = { nama };
 
     if (role === 'siswa') {
-        const kelas = document.getElementById('editKelas').value;
-        if (!kelas || !KELAS_LIST.includes(kelas)) { toast('Pilih kelas yang valid!', 'error'); return; }
-        updateData.kelas = kelas;
+        const kelasList = [...document.querySelectorAll('#editClassCheckboxesSiswa input:checked')].map(c => c.value);
+        if (!kelasList.length) { toast('Pilih minimal satu kelas!', 'error'); return; }
+        updateData.kelas_list = kelasList;
     } else if (role === 'pengajar') {
         const kelasList = [...document.querySelectorAll('#editClassCheckboxes input:checked')].map(c => c.value);
         if (!kelasList.length) { toast('Pilih minimal satu kelas yang diajar!', 'error'); return; }
@@ -869,8 +870,8 @@ window.submitEditProfile = async function() {
         if (error) throw error;
 
         window.currentUserName = nama;
-        if (role === 'siswa') window.currentUserClass = updateData.kelas;
-        else if (role === 'pengajar') window.currentUser.kelas_list = updateData.kelas_list;
+        if (role === 'siswa') window.currentUserClassList = updateData.kelas_list;
+        window.currentUser.kelas_list = updateData.kelas_list;
 
         closeModal('editProfileModal');
         updateTopBar();
@@ -885,23 +886,26 @@ window.submitEditProfile = async function() {
 // ==============================
 // ADMIN EDIT SISWA
 // ==============================
-window.openAdminEditSiswa = function(siswaId, nama, email, kelas) {
+window.openAdminEditSiswa = function(siswaId, nama, email, kelasListStr) {
     editingSiswaId = siswaId;
     document.getElementById('adminEditNama').value = nama;
     document.getElementById('adminEditEmail').value = email;
-    document.getElementById('adminEditKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + renderKelasOptionsGrouped();
-    document.getElementById('adminEditKelas').value = kelas || '';
+    document.getElementById('adminEditKelasCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
+    const kelasList = kelasListStr ? kelasListStr.split('|').filter(Boolean) : [];
+    document.querySelectorAll('#adminEditKelasCheckboxes input[type="checkbox"]').forEach(cb => {
+        cb.checked = kelasList.includes(cb.value);
+    });
     document.getElementById('adminEditSiswaModal').classList.add('show');
 }
 
 window.submitAdminEditSiswa = async function() {
     if (!editingSiswaId) { toast('Error: ID siswa tidak ditemukan', 'error'); return; }
-    const kelas = document.getElementById('adminEditKelas').value;
-    if (!kelas || !KELAS_LIST.includes(kelas)) { toast('Pilih kelas yang valid!', 'error'); return; }
+    const kelasList = [...document.querySelectorAll('#adminEditKelasCheckboxes input:checked')].map(c => c.value);
+    if (!kelasList.length) { toast('Pilih minimal satu kelas!', 'error'); return; }
 
     setLoading('btn-admin-edit', true);
     try {
-        const { error } = await window.sb.from('profiles').update({ kelas }).eq('id', editingSiswaId);
+        const { error } = await window.sb.from('profiles').update({ kelas_list: kelasList }).eq('id', editingSiswaId);
         if (error) throw error;
         closeModal('adminEditSiswaModal');
         toast('Data siswa berhasil diperbarui!');
@@ -966,7 +970,6 @@ window.deleteAdminJadwal = async function(id) {
 // [UPDATED] LOAD CATATAN SISWA (dipakai siswa/pengajar/admin)
 // ==============================
 async function loadCatatanMap(jadwalIds) {
-    // return map: jadwalId -> array of {id, siswa_id, siswa_nama, catatan, created_at}
     const map = {};
     if (!jadwalIds || jadwalIds.length === 0) return map;
     try {
@@ -987,20 +990,19 @@ async function loadCatatanMap(jadwalIds) {
 }
 
 // ==============================
-// SISWA CATATAN JADWAL (INSERT & EDIT) [UPDATED]
+// SISWA CATATAN JADWAL (INSERT & EDIT)
 // ==============================
 let selectedJadwalForCatatan = null;
-let selectedCatatanId = null; // [UPDATED] null = mode tambah baru, ada isi = mode edit
+let selectedCatatanId = null;
 
 window.openSiswaCatatanModal = function(jadwalId, judul, tanggal, jam, existingCatatanId = null, existingCatatanText = '') {
     selectedJadwalForCatatan = jadwalId;
-    selectedCatatanId = existingCatatanId; // [UPDATED]
+    selectedCatatanId = existingCatatanId;
     const { day, month } = formatDateShort(tanggal);
     document.getElementById('siswaJadwalInfo').innerHTML =
         `<strong>${escapeHtml(judul)}</strong><br>${day} ${month} - ${escapeHtml(jam || '—')}`;
     document.getElementById('siswaCatatanText').value = existingCatatanText || '';
 
-    // [UPDATED] ubah judul modal & teks tombol sesuai mode
     document.getElementById('siswaCatatanModalTitle').innerHTML = existingCatatanId
         ? '<i class="fa-solid fa-pen" style="color:var(--yellow);margin-right:0.5rem;"></i> Edit Catatan Jadwal'
         : '<i class="fa-solid fa-note-sticky" style="color:var(--yellow);margin-right:0.5rem;"></i> Tambah Catatan Jadwal';
@@ -1019,14 +1021,12 @@ window.submitSiswaCatatan = async function() {
     try {
         let error;
         if (selectedCatatanId) {
-            // [UPDATED] mode EDIT — update catatan yang sudah ada
             ({ error } = await window.sb
                 .from('jadwal_catatan_siswa')
                 .update({ catatan })
                 .eq('id', selectedCatatanId)
                 .eq('siswa_id', window.currentUser.id));
         } else {
-            // mode TAMBAH BARU
             ({ error } = await window.sb.from('jadwal_catatan_siswa').insert({
                 jadwal_id: selectedJadwalForCatatan,
                 siswa_id: window.currentUser.id,
@@ -1040,7 +1040,6 @@ window.submitSiswaCatatan = async function() {
         toast(selectedCatatanId ? 'Catatan berhasil diperbarui!' : 'Catatan berhasil disimpan!');
         selectedCatatanId = null;
 
-        // refresh view yang relevan
         if (currentView === 'siswa-jadwal') await renderSiswaJadwal();
         else if (currentView === 'siswa-dashboard') await renderSiswaDashboard();
     } catch(e) {
@@ -1080,7 +1079,7 @@ async function loadProfileAndRoute() {
         window.currentUser = profile;
         window.isLoggedIn = true;
         window.currentUserRole = profile.role;
-        window.currentUserClass = profile.kelas || null;
+        window.currentUserClassList = profile.kelas_list || [];
         window.currentUserName = profile.nama || user.email;
 
         renderRibbon();
@@ -1148,10 +1147,10 @@ window.processRegister = async function() {
     if (password.length < 6) { toast('Password minimal 6 karakter!', 'error'); return; }
     if (!email.includes('@')) { toast('Format email tidak valid!', 'error'); return; }
 
-    let kelas = null, kelasList = [];
+    let kelasListSiswa = [], kelasList = [];
     if (role === 'siswa') {
-        kelas = document.getElementById('regClass').value;
-        if (!kelas || !KELAS_LIST.includes(kelas)) { toast('Pilih kelas kamu!', 'error'); return; }
+        kelasListSiswa = [...document.querySelectorAll('#regClassCheckboxes input:checked')].map(c => c.value);
+        if (!kelasListSiswa.length) { toast('Pilih minimal satu kelas!', 'error'); return; }
     }
     if (role === 'pengajar') {
         kelasList = [...document.querySelectorAll('#classCheckboxes input:checked')].map(c => c.value);
@@ -1167,8 +1166,7 @@ window.processRegister = async function() {
                 data: {
                     nama,
                     role,
-                    kelas: role === 'siswa' ? kelas : null,
-                    kelas_list: role === 'pengajar' ? kelasList : null
+                    kelas_list: role === 'siswa' ? kelasListSiswa : (role === 'pengajar' ? kelasList : null)
                 }
             }
         };
@@ -1357,7 +1355,7 @@ function renderPublic() {
 }
 
 // ==============================
-// SISWA DASHBOARD [UPDATED — fetch & render catatan sendiri]
+// SISWA DASHBOARD
 // ==============================
 async function renderSiswaDashboard() {
     document.getElementById('app').innerHTML = `
@@ -1366,7 +1364,7 @@ async function renderSiswaDashboard() {
             <div>
                 <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Siswa</div>
                 <div class="page-title">Halo, <span>${(window.currentUserName||'').split(' ')[0]}</span> 👋</div>
-                <div style="font-size:0.85rem;color:var(--muted);margin-top:0.4rem;">Kelas: ${badgeKelas(window.currentUserClass||'')}</div>
+                <div style="font-size:0.85rem;color:var(--muted);margin-top:0.4rem;display:flex;flex-wrap:wrap;gap:0.3rem;align-items:center;">Kelas: ${(window.currentUserClassList||[]).map(k=>badgeKelas(k)).join(' ')}</div>
             </div>
         </div>
 
@@ -1385,8 +1383,8 @@ async function renderSiswaDashboard() {
         </div>
     </div>`;
 
-    const kelas = window.currentUserClass;
-    if (!kelas) {
+    const kelasList = window.currentUserClassList || [];
+    if (!kelasList.length) {
         document.getElementById('siswa-jadwal-preview').innerHTML = `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Kelas tidak ditemukan. Hubungi admin.</p></div>`;
         document.getElementById('siswa-materi-preview').innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Kelas tidak ditemukan.</p></div>`;
         return;
@@ -1396,11 +1394,10 @@ async function renderSiswaDashboard() {
         const today = new Date().toISOString().split('T')[0];
 
         const { data: jadwals, error: jErr } = await window.sb
-            .from('jadwal').select('*').eq('kelas', kelas)
+            .from('jadwal').select('*').in('kelas', kelasList)
             .gte('tanggal', today).order('tanggal', { ascending: true }).limit(3);
         if (jErr) throw jErr;
 
-        // [UPDATED] ambil catatan siswa sendiri untuk jadwal yang ditampilkan
         const jadwalIds = jadwals.map(j => j.id);
         const catatanMap = await loadCatatanMap(jadwalIds);
 
@@ -1410,7 +1407,7 @@ async function renderSiswaDashboard() {
             : jadwals.map(j => jadwalItemHtml(j, false, true, catatanMap[j.id] || [])).join('');
 
         const { data: files, count, error: fErr } = await window.sb
-            .from('soal_files').select('*', { count: 'exact' }).eq('kelas', kelas)
+            .from('soal_files').select('*', { count: 'exact' }).in('kelas', kelasList)
             .order('created_at', { ascending: false }).limit(3);
         if (fErr) throw fErr;
 
@@ -1429,7 +1426,7 @@ async function renderSiswaDashboard() {
 }
 
 // ==============================
-// SISWA JADWAL [UPDATED]
+// SISWA JADWAL
 // ==============================
 async function renderSiswaJadwal() {
     document.getElementById('app').innerHTML = `
@@ -1443,12 +1440,12 @@ async function renderSiswaJadwal() {
     </div>`;
 
     try {
+        const kelasList = window.currentUserClassList || [];
         const { data: items, error } = await window.sb
-            .from('jadwal').select('*').eq('kelas', window.currentUserClass)
+            .from('jadwal').select('*').in('kelas', kelasList)
             .order('tanggal', { ascending: true });
         if (error) throw error;
 
-        // [UPDATED] ambil catatan siswa sendiri untuk semua jadwal kelasnya
         const jadwalIds = items.map(j => j.id);
         const catatanMap = await loadCatatanMap(jadwalIds);
 
@@ -1476,8 +1473,9 @@ async function renderSiswaMateri() {
     </div>`;
 
     try {
+        const kelasList = window.currentUserClassList || [];
         const { data: files, error } = await window.sb
-            .from('soal_files').select('*').eq('kelas', window.currentUserClass)
+            .from('soal_files').select('*').in('kelas', kelasList)
             .order('created_at', { ascending: false });
         if (error) throw error;
 
@@ -1491,7 +1489,7 @@ async function renderSiswaMateri() {
 }
 
 // ==============================
-// PENGAJAR DASHBOARD [UPDATED — tampilkan catatan siswa]
+// PENGAJAR DASHBOARD
 // ==============================
 async function renderPengajarDashboard() {
     const kelasList = window.currentUser?.kelas_list || [];
@@ -1533,7 +1531,6 @@ async function renderPengajarDashboard() {
         document.getElementById('pg-stat-file').textContent = fileCount ?? 0;
 
         const recent = allJadwal.slice(0,5);
-        // [UPDATED] muat catatan siswa untuk jadwal yang ditampilkan
         const catatanMap = await loadCatatanMap(recent.map(j => j.id));
         document.getElementById('pg-jadwal-list').innerHTML = recent.length === 0
             ? `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Belum ada jadwal</p></div>`
@@ -1545,7 +1542,7 @@ async function renderPengajarDashboard() {
 }
 
 // ==============================
-// PENGAJAR JADWAL [UPDATED — tampilkan catatan siswa]
+// PENGAJAR JADWAL
 // ==============================
 async function renderPengajarJadwal() {
     document.getElementById('app').innerHTML = `
@@ -1569,7 +1566,6 @@ async function loadPengajarJadwal() {
             .order('tanggal', { ascending: false });
         if (error) throw error;
 
-        // [UPDATED] muat catatan siswa untuk semua jadwal pengajar ini
         const catatanMap = await loadCatatanMap(allJadwal.map(j => j.id));
 
         const el = document.getElementById('pg-jadwal-full');
@@ -1581,6 +1577,7 @@ async function loadPengajarJadwal() {
 }
 
 window.openJadwalModal = function() {
+    window.adminIsAddingJadwal = false;
     const kelasList = window.currentUser?.kelas_list || [];
     const sel = document.getElementById('jadwalKelas');
     sel.innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` +
@@ -1598,12 +1595,14 @@ window.submitJadwal = async function() {
 
     if (!judul || !tanggal || !jam || !kelas) { toast('Isi field yang wajib!','error'); return; }
 
+    const isAdminMode = !!window.adminIsAddingJadwal;
+
     setLoading('btn-jadwal-submit', true);
     try {
         const { error } = await window.sb.from('jadwal').insert({
             judul, tanggal, jam, ruangan, kelas, catatan,
             pengajar_id: window.currentUser.id,
-            pengajar_nama: window.currentUserName
+            pengajar_nama: isAdminMode ? `${window.currentUserName} (Admin)` : window.currentUserName
         });
         if (error) throw error;
 
@@ -1612,7 +1611,13 @@ window.submitJadwal = async function() {
         document.getElementById('jadwalJudul').value = '';
         document.getElementById('jadwalRuangan').value = '';
         document.getElementById('jadwalCatatan').value = '';
-        await loadPengajarJadwal();
+
+        if (isAdminMode) {
+            window.adminIsAddingJadwal = false;
+            await renderAdminJadwal();
+        } else {
+            await loadPengajarJadwal();
+        }
     } catch(e) {
         toast('Gagal: '+translateSupabaseError(e.message),'error');
     }
@@ -1804,12 +1809,11 @@ async function renderAdminDashboard() {
                     <td style="padding:0.65rem 0;color:var(--muted);font-size:0.82rem;">${u.email||'—'}</td>
                     <td style="padding:0.65rem 0;">${badgeRole(u.role)}</td>
                     <td style="padding:0.65rem 0;">${
-                        u.kelas ? getLabelKelas(u.kelas)
-                        : (u.kelas_list?.map(k=>getLabelKelas(k)).join(', ')) || '—'
+                        (u.kelas_list?.map(k=>getLabelKelas(k)).join(', ')) || '—'
                     }</td>
                     <td style="padding:0.65rem 0;text-align:center;">${
                         u.role === 'siswa'
-                            ? `<button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${u.id}', '${(u.nama||'').replace(/'/g,"\\'")}', '${u.email||''}', '${u.kelas||''}')"><i class="fa-solid fa-edit"></i></button>`
+                            ? `<button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${u.id}', '${(u.nama||'').replace(/'/g,"\\'")}', '${u.email||''}', '${(u.kelas_list||[]).join('|')}')"><i class="fa-solid fa-edit"></i></button>`
                             : '—'
                     }</td>
                 </tr>`).join('')}</tbody>
@@ -1850,9 +1854,9 @@ async function renderAdminSiswa() {
                 <tbody>${siswa.map(s=>`<tr style="font-size:0.9rem;border-bottom:1px solid var(--border);">
                     <td style="padding:0.65rem 0;">${s.nama||'—'}</td>
                     <td style="padding:0.65rem 0;color:var(--muted);font-size:0.82rem;">${s.email||'—'}</td>
-                    <td style="padding:0.65rem 0;">${s.kelas ? badgeKelas(s.kelas) : '<span style="color:var(--muted);">—</span>'}</td>
+                    <td style="padding:0.65rem 0;">${(s.kelas_list||[]).length ? s.kelas_list.map(k=>badgeKelas(k)).join(' ') : '<span style="color:var(--muted);">—</span>'}</td>
                     <td style="padding:0.65rem 0;text-align:center;">
-                        <button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${s.id}', '${(s.nama||'').replace(/'/g,"\\'")}', '${s.email||''}', '${s.kelas||''}')"><i class="fa-solid fa-edit"></i> Edit</button>
+                        <button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${s.id}', '${(s.nama||'').replace(/'/g,"\\'")}', '${s.email||''}', '${(s.kelas_list||[]).join('|')}')"><i class="fa-solid fa-edit"></i> Edit</button>
                     </td>
                 </tr>`).join('')}</tbody>
             </table></div>`;
@@ -1864,13 +1868,14 @@ async function renderAdminSiswa() {
 }
 
 // ==============================
-// ADMIN JADWAL VIEW [UPDATED — tampilkan catatan siswa]
+// ADMIN JADWAL VIEW
 // ==============================
 async function renderAdminJadwal() {
     document.getElementById('app').innerHTML = `
     <div class="container">
         <div class="page-header">
             <div class="page-title">Kelola <span>Jadwal</span></div>
+            <button class="btn btn-red btn-sm" onclick="openAdminAddJadwalModal()"><i class="fa-solid fa-plus"></i> Tambah Jadwal</button>
         </div>
         <div class="card">
             <div id="admin-jadwal-list"><div class="loading-spinner"></div></div>
@@ -1882,7 +1887,6 @@ async function renderAdminJadwal() {
             .from('jadwal').select('*').order('tanggal', { ascending: false });
         if (error) throw error;
 
-        // [UPDATED] muat semua catatan siswa untuk seluruh jadwal (admin akses penuh)
         const catatanMap = await loadCatatanMap(jadwals.map(j => j.id));
 
         const el = document.getElementById('admin-jadwal-list');
@@ -1897,21 +1901,30 @@ async function renderAdminJadwal() {
     }
 }
 
+// [BARU] Admin menambah jadwal untuk KELAS APAPUN (berperan sebagai pengajar)
+window.openAdminAddJadwalModal = function() {
+    window.adminIsAddingJadwal = true;
+    const sel = document.getElementById('jadwalKelas');
+    sel.innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + renderKelasOptionsGrouped();
+    document.getElementById('jadwalJudul').value = '';
+    document.getElementById('jadwalRuangan').value = '';
+    document.getElementById('jadwalCatatan').value = '';
+    document.getElementById('jadwalModal').classList.add('show');
+}
+
 function badgeRole(role) {
     const map = { siswa:'badge-blue', pengajar:'badge-green', admin:'badge-red' };
     return `<span class="badge ${map[role]||'badge-muted'}">${role}</span>`;
 }
 
 // ==============================
-// HELPER HTML RENDERERS [UPDATED]
+// HELPER HTML RENDERERS
 // ==============================
 function jadwalItemHtml(j, canDelete=false, isSiswa=false, catatanList=[]) {
     const { day, month } = formatDateShort(j.tanggal);
 
-    // [UPDATED] render blok catatan
     let catatanHtml = '';
     if (isSiswa) {
-        // Siswa: hanya lihat catatan miliknya sendiri (harusnya cuma 1, karena RLS scoped ke siswa_id = auth.uid())
         const mine = catatanList.find(c => c.siswa_id === window.currentUser.id);
         if (mine) {
             catatanHtml = `
@@ -1921,7 +1934,6 @@ function jadwalItemHtml(j, canDelete=false, isSiswa=false, catatanList=[]) {
             </div>`;
         }
     } else if (canDelete) {
-        // Pengajar / Admin: lihat semua catatan dari semua siswa untuk jadwal ini
         if (catatanList.length > 0) {
             catatanHtml = `
             <div class="catatan-container">
@@ -1936,7 +1948,6 @@ function jadwalItemHtml(j, canDelete=false, isSiswa=false, catatanList=[]) {
         }
     }
 
-    // [UPDATED] tombol siswa: cek apakah sudah punya catatan -> tombol Edit, kalau belum -> tombol Tambah
     let siswaBtnHtml = '';
     if (isSiswa) {
         const mine = catatanList.find(c => c.siswa_id === window.currentUser.id);
