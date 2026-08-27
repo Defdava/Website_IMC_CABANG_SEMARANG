@@ -11,10 +11,18 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script>
-        const SUPABASE_URL = "https://zebkuktclorfbccdzyxg.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplYmt1a3RjbG9yZmJjY2R6eXhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1MjkxOTgsImV4cCI6MjEwMjEwNTE5OH0.VfIbV8iXSK9Kf0uWbtMgNJ76tHcMcTOzpqbJvQOJVhI";
+        // ============================================================
+        // KONFIGURASI SUPABASE
+        // ============================================================
+        // FIX: Gunakan window.sb langsung dari createClient, JANGAN
+        // redeclare variabel 'supabase' karena SDK sudah memakai nama itu.
+        const SUPABASE_URL = "https://nxsnxbvzwzigfmbvasfq.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54c254YnZ6d3ppZ2ZtYnZhc2ZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNDQ4MzcsImV4cCI6MjA5NzcyMDgzN30.XyQPbDPRuPjptvu24V5cl-SEPclgM9Cdqg6N2SIFptA";
 
+        // FIX: Akses createClient lewat window.supabase (namespace SDK),
+        // lalu simpan hasilnya ke window.sb — hindari tabrakan nama.
         window.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         console.log("✅ Supabase IMC siap");
     </script>
 
@@ -55,6 +63,7 @@
         }
         a { text-decoration: none; color: inherit; }
 
+        /* ---- LAYOUT ---- */
         .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem; }
         .page-header {
             display: flex; align-items: center; justify-content: space-between;
@@ -63,6 +72,7 @@
         .page-title { font-size: 1.6rem; font-weight: 700; }
         .page-title span { color: var(--red); }
 
+        /* ---- CARDS ---- */
         .card {
             background: var(--card); border-radius: var(--radius);
             padding: 1.75rem; box-shadow: var(--shadow); border: 1px solid var(--border);
@@ -71,6 +81,7 @@
         .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
         .card-meta { font-size: 0.82rem; color: var(--muted); }
 
+        /* ---- BUTTONS ---- */
         .btn {
             display: inline-flex; align-items: center; gap: 0.5rem;
             padding: 0.7rem 1.5rem; border-radius: 9999px; font-weight: 600;
@@ -88,7 +99,14 @@
         .btn-sm { padding: 0.45rem 1rem; font-size: 0.8rem; }
         .btn-danger { background: #fee2e2; color: var(--red-dark); }
         .btn-full { width: 100%; justify-content: center; }
+        .btn-icon-sm {
+            display:inline-flex; align-items:center; justify-content:center;
+            width: 34px; height: 34px; border-radius: 9999px; border: 2px solid var(--border);
+            background: var(--card); color: var(--muted); cursor: pointer; flex-shrink:0;
+        }
+        .btn-icon-sm:hover { color: var(--red); border-color: var(--red); }
 
+        /* ---- FORM ---- */
         .form-group { margin-bottom: 1.1rem; }
         .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em; }
         .form-control, .form-select {
@@ -101,6 +119,17 @@
         .form-control:focus, .form-select:focus { outline: none; border-color: var(--red); }
         textarea.form-control { resize: vertical; min-height: 100px; }
 
+        /* ---- PASSWORD FIELD (with show/hide) ---- */
+        .password-field-wrap { position: relative; }
+        .password-field-wrap .form-control { padding-right: 3rem; }
+        .password-toggle-btn {
+            position: absolute; top: 50%; right: 0.9rem; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: var(--muted);
+            font-size: 1rem; padding: 0.25rem; display:flex; align-items:center;
+        }
+        .password-toggle-btn:hover { color: var(--red); }
+
+        /* ---- BADGE ---- */
         .badge {
             display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px;
             font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap;
@@ -111,6 +140,7 @@
         .badge-yellow { background: #fef3c7; color: #92400e; }
         .badge-muted { background: var(--border); color: var(--muted); }
 
+        /* ---- MODAL ---- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.55);
             backdrop-filter: blur(6px); display: none;
@@ -133,14 +163,7 @@
         }
         .modal-tab.active { background: var(--red); border-color: var(--red); color: white; }
 
-        /* Info box untuk konfirmasi email */
-        .info-box {
-            background: #dbeafe; border: 1px solid #93c5fd; border-radius: var(--radius-sm);
-            padding: 0.9rem 1rem; font-size: 0.85rem; color: #1d4ed8;
-            display: flex; align-items: flex-start; gap: 0.6rem; margin-bottom: 1rem;
-        }
-        .info-box i { margin-top: 0.05rem; flex-shrink: 0; }
-
+        /* ---- HERO / PUBLIC ---- */
         .hero {
             text-align: center; padding: 4rem 1.5rem 3rem;
             background: linear-gradient(135deg, #fff 0%, #fff8f8 100%);
@@ -167,6 +190,7 @@
         .feature-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.4rem; }
         .feature-desc { font-size: 0.85rem; color: var(--muted); }
 
+        /* ---- DASHBOARD STATS ---- */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
         .stat-card {
             background: var(--card); border-radius: var(--radius); padding: 1.25rem;
@@ -175,6 +199,7 @@
         .stat-num { font-size: 1.8rem; font-weight: 800; }
         .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-top: 0.2rem; }
 
+        /* ---- JADWAL ITEM ---- */
         .jadwal-item {
             display: flex; gap: 1rem; align-items: flex-start;
             padding: 1.1rem 0; border-bottom: 1px solid var(--border);
@@ -191,6 +216,30 @@
         .jadwal-title { font-weight: 700; margin-bottom: 0.2rem; }
         .jadwal-meta { font-size: 0.82rem; color: var(--muted); display:flex; flex-wrap:wrap; align-items:center; gap: 0.3rem; }
 
+        /* ---- WEEKLY SCHEDULE ---- */
+        .week-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap;
+        }
+        .week-nav-label { text-align:center; flex:1; min-width: 160px; }
+        .week-nav-title { font-weight: 800; font-size: 1.05rem; }
+        .week-nav-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.15rem; }
+        .week-today-btn { font-size: 0.76rem; }
+        .week-day-group { margin-bottom: 0.5rem; }
+        .week-day-heading {
+            display:flex; align-items:center; gap: 0.6rem;
+            font-size: 0.78rem; font-weight: 800; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.06em;
+            padding: 0.9rem 0 0.4rem;
+        }
+        .week-day-heading.is-today { color: var(--red); }
+        .week-day-heading .dot {
+            width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink:0;
+        }
+        .week-day-heading.is-today .dot { background: var(--red); }
+        .week-day-heading .line { flex:1; height:1px; background: var(--border); }
+
+        /* ---- FILE ITEM ---- */
         .file-item {
             display: flex; align-items: center; gap: 1rem;
             padding: 1rem; border-radius: var(--radius-sm);
@@ -204,6 +253,7 @@
         .file-meta { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; display:flex; flex-wrap:wrap; align-items:center; gap:0.3rem; }
         .file-actions { display: flex; gap: 0.5rem; }
 
+        /* ---- BOTTOM NAV ---- */
         #bottom-ribbon {
             position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000;
             background: var(--card); border-top: 1px solid var(--border);
@@ -222,6 +272,7 @@
         .ribbon-btn i { font-size: 1.2rem; }
         .ribbon-btn.active, .ribbon-btn:hover { color: var(--red); background: #fee2e2; }
 
+        /* ---- TOP BAR ---- */
         .top-bar {
             background: var(--card); border-bottom: 1px solid var(--border);
             padding: 1rem 1.25rem; display: flex; align-items: center;
@@ -235,13 +286,14 @@
             display: flex; align-items: center; gap: 0.5rem;
             background: var(--bg); border-radius: 9999px; padding: 0.4rem 0.9rem;
             font-size: 0.82rem; font-weight: 600; border: 1px solid var(--border);
-            cursor: pointer;
         }
         .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--red); color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; }
 
+        /* ---- PROGRESS BAR ---- */
         .progress-wrap { background: var(--border); border-radius: 9999px; height: 6px; overflow: hidden; margin: 0.5rem 0; }
         .progress-bar { height: 100%; background: var(--green); border-radius: 9999px; transition: width 0.3s; }
 
+        /* ---- TOAST ---- */
         #toast-container { position: fixed; top: 1.25rem; right: 1.25rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
         .toast {
             background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -252,16 +304,20 @@
         .toast.error { border-left-color: var(--red); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+        /* ---- DIVIDER ---- */
         .divider { height: 1px; background: var(--border); margin: 1.5rem 0; }
         .section-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
 
+        /* ---- EMPTY STATE ---- */
         .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
         .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
         .empty-state p { font-size: 0.95rem; }
 
+        /* ---- LOADING ---- */
         .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2.5px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ---- KATEGORI KELAS (select group) ---- */
         .checkbox-kelas-wrap {
             border: 2px solid var(--border); border-radius: var(--radius-sm);
             padding: 0.9rem; max-height: 260px; overflow-y: auto;
@@ -270,6 +326,7 @@
         .checkbox-kelas-cat:first-child { margin-top: 0; }
         .checkbox-kelas-item { display:flex; align-items:center; gap:0.5rem; font-size:0.86rem; padding: 0.3rem 0; }
 
+        /* ---- RESPONSIVE ---- */
         @media (max-width: 600px) {
             .modal-box { padding: 1.75rem 1.25rem; }
             .hero { padding: 2.5rem 1rem 2rem; }
@@ -277,77 +334,28 @@
             .ribbon-btn { min-width: 48px; padding: 0.5rem 0.6rem; }
         }
 
+        /* ---- THEME TOGGLE ---- */
         .theme-btn {
             background: var(--bg); border: 1px solid var(--border);
             border-radius: 9999px; padding: 0.45rem 0.85rem; cursor: pointer;
             font-size: 0.9rem; color: var(--text); font-family: 'Outfit', sans-serif;
         }
-
-        .user-menu { position: relative; }
-        .user-menu-dropdown {
-            display: none; position: absolute; top: 100%; right: 0;
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
-            min-width: 160px; z-index: 500; margin-top: 0.5rem;
-        }
-        .user-menu-dropdown.show { display: block; }
-        .user-menu-item {
-            display: flex; align-items: center; gap: 0.75rem;
-            padding: 0.75rem 1rem; border: none; background: transparent;
-            color: var(--text); cursor: pointer; font-family: 'Outfit', sans-serif;
-            font-size: 0.9rem; width: 100%; text-align: left;
-            transition: background 0.2s; border-bottom: 1px solid var(--border);
-        }
-        .user-menu-item:last-child { border-bottom: none; }
-        .user-menu-item:hover { background: var(--bg); }
-        .user-menu-item.danger { color: var(--red); }
-
-        /* Catatan jadwal siswa */
-        .catatan-container {
-            background: #eff6ff; border: 1px solid #bfdbfe;
-            border-radius: var(--radius-sm); padding: 0.75rem;
-            margin-top: 0.6rem; font-size: 0.82rem;
-        }
-        [data-theme="dark"] .catatan-container {
-            background: rgba(30, 58, 138, 0.3);
-        }
-        .catatan-label {
-            font-weight: 600; color: #1d4ed8; margin-bottom: 0.3rem;
-            display: flex; align-items: center; gap: 0.4rem;
-        }
-        .catatan-text {
-            color: #1e293b; line-height: 1.4;
-            word-break: break-word;
-        }
-        [data-theme="dark"] .catatan-text { color: #f1f5f9; }
-        /* [UPDATED] multi catatan list (untuk pengajar/admin) */
-        .catatan-item + .catatan-item { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #bfdbfe; }
     </style>
 </head>
 <body>
 
 <div id="toast-container"></div>
 
-<!-- TOP BAR -->
+<!-- TOP BAR (hidden on public) -->
 <div id="top-bar" class="top-bar" style="display:none;">
     <div class="top-logo"><span>IMC</span> Portal</div>
     <div class="top-right">
         <button class="theme-btn" onclick="toggleTheme()"><i class="fa-regular fa-moon"></i></button>
-        <div class="user-menu">
-            <button class="user-chip" onclick="toggleUserMenu()">
-                <div class="avatar" id="user-avatar">?</div>
-                <span id="user-name-chip">—</span>
-                <i class="fa-solid fa-chevron-down" style="font-size:0.7rem;"></i>
-            </button>
-            <div id="userMenuDropdown" class="user-menu-dropdown">
-                <button class="user-menu-item" onclick="openEditProfile()">
-                    <i class="fa-solid fa-user-pen"></i> Edit Profile
-                </button>
-                <button class="user-menu-item danger" onclick="doLogout()">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
-                </button>
-            </div>
+        <div class="user-chip">
+            <div class="avatar" id="user-avatar">?</div>
+            <span id="user-name-chip">—</span>
         </div>
+        <button class="btn btn-outline btn-sm" onclick="doLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
     </div>
 </div>
 
@@ -379,7 +387,12 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Kata Sandi</label>
-                <input type="password" id="loginPassword" class="form-control" placeholder="Minimal 6 karakter">
+                <div class="password-field-wrap">
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Minimal 6 karakter">
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('loginPassword', this)" tabindex="-1">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label class="form-label">Peran</label>
@@ -400,10 +413,6 @@
 
         <!-- REGISTER FORM -->
         <div id="form-register" style="display:none;">
-            <div class="info-box" id="reg-email-info" style="display:none;">
-                <i class="fa-solid fa-circle-info"></i>
-                <span>Jika fitur konfirmasi email aktif di Supabase, cek inbox email kamu setelah daftar. Jika tidak ada email masuk, coba matikan "Confirm email" di Supabase Auth Settings.</span>
-            </div>
             <div class="form-group">
                 <label class="form-label">Nama Lengkap</label>
                 <input type="text" id="regName" class="form-control" placeholder="Nama Anda">
@@ -414,7 +423,12 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Kata Sandi</label>
-                <input type="password" id="regPassword" class="form-control" placeholder="Minimal 6 karakter">
+                <div class="password-field-wrap">
+                    <input type="password" id="regPassword" class="form-control" placeholder="Minimal 6 karakter">
+                    <button type="button" class="password-toggle-btn" onclick="togglePassword('regPassword', this)" tabindex="-1">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label class="form-label">Peran</label>
@@ -422,13 +436,16 @@
                     <option value="" disabled selected>Pilih Peran</option>
                     <option value="siswa">Siswa</option>
                     <option value="pengajar">Pengajar</option>
-                    <option value="admin">Admin</option>
                 </select>
             </div>
+            <!-- SISWA: pilih 1 kelas -->
             <div class="form-group" id="regClassWrap" style="display:none;">
-                <label class="form-label">Kelas (bisa lebih dari satu)</label>
-                <div id="regClassCheckboxes" class="checkbox-kelas-wrap"></div>
+                <label class="form-label">Kelas</label>
+                <select id="regClass" class="form-select">
+                    <option value="" disabled selected>Pilih Kelas</option>
+                </select>
             </div>
+            <!-- PENGAJAR: pilih banyak kelas -->
             <div class="form-group" id="regClassesPengajarWrap" style="display:none;">
                 <label class="form-label">Kelas yang Diajar (bisa lebih dari satu)</label>
                 <div id="classCheckboxes" class="checkbox-kelas-wrap"></div>
@@ -443,61 +460,7 @@
     </div>
 </div>
 
-<!-- EDIT PROFILE MODAL -->
-<div id="editProfileModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-user-pen" style="color:var(--red);margin-right:0.5rem;"></i> Edit Profile</div>
-        
-        <div class="form-group">
-            <label class="form-label">Nama Lengkap</label>
-            <input type="text" id="editNama" class="form-control" placeholder="Nama Anda">
-        </div>
-
-        <div class="form-group" id="editKelasWrap" style="display:none;">
-            <label class="form-label">Kelas (bisa lebih dari satu)</label>
-            <div id="editClassCheckboxesSiswa" class="checkbox-kelas-wrap"></div>
-        </div>
-
-        <div class="form-group" id="editKelasListWrap" style="display:none;">
-            <label class="form-label">Kelas yang Diajar (bisa lebih dari satu)</label>
-            <div id="editClassCheckboxes" class="checkbox-kelas-wrap"></div>
-        </div>
-
-        <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
-            <button class="btn btn-outline" onclick="closeModal('editProfileModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-red" onclick="submitEditProfile()" style="flex:2;" id="btn-edit-profile">Simpan Perubahan</button>
-        </div>
-    </div>
-</div>
-
-<!-- ADMIN EDIT SISWA MODAL -->
-<div id="adminEditSiswaModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-edit" style="color:var(--blue);margin-right:0.5rem;"></i> Edit Siswa</div>
-        
-        <div class="form-group">
-            <label class="form-label">Nama</label>
-            <input type="text" id="adminEditNama" class="form-control" disabled>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" id="adminEditEmail" class="form-control" disabled>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Kelas (bisa lebih dari satu)</label>
-            <div id="adminEditKelasCheckboxes" class="checkbox-kelas-wrap"></div>
-        </div>
-
-        <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
-            <button class="btn btn-outline" onclick="closeModal('adminEditSiswaModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-blue" onclick="submitAdminEditSiswa()" style="flex:2;" id="btn-admin-edit">Simpan</button>
-        </div>
-    </div>
-</div>
-
-<!-- JADWAL MODAL (pengajar / admin) -->
+<!-- TAMBAH JADWAL MODAL (pengajar) -->
 <div id="jadwalModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-regular fa-calendar-plus" style="color:var(--red);margin-right:0.5rem;"></i> Tambah Jadwal</div>
@@ -530,55 +493,6 @@
         <div style="display:flex; gap:0.75rem; margin-top:1rem;">
             <button class="btn btn-outline" onclick="closeModal('jadwalModal')" style="flex:1;">Batal</button>
             <button class="btn btn-red" onclick="submitJadwal()" style="flex:2;" id="btn-jadwal-submit">Simpan Jadwal</button>
-        </div>
-    </div>
-</div>
-
-<!-- ADMIN EDIT JADWAL MODAL -->
-<div id="adminEditJadwalModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-edit" style="color:var(--blue);margin-right:0.5rem;"></i> Edit Jadwal</div>
-        <div class="form-group">
-            <label class="form-label">Judul / Mata Pelajaran</label>
-            <input type="text" id="adminJadwalJudul" class="form-control">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Tanggal</label>
-            <input type="date" id="adminJadwalTanggal" class="form-control">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Jam</label>
-            <input type="time" id="adminJadwalJam" class="form-control">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Ruangan / Link</label>
-            <input type="text" id="adminJadwalRuangan" class="form-control">
-        </div>
-        <div class="form-group">
-            <label class="form-label">Catatan</label>
-            <textarea id="adminJadwalCatatan" class="form-control" style="min-height:80px;"></textarea>
-        </div>
-        <div style="display:flex; gap:0.75rem; margin-top:1rem;">
-            <button class="btn btn-outline" onclick="closeModal('adminEditJadwalModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-blue" onclick="submitAdminEditJadwal()" style="flex:2;" id="btn-admin-jadwal-submit">Simpan</button>
-        </div>
-    </div>
-</div>
-
-<!-- SISWA TAMBAH / EDIT CATATAN JADWAL MODAL -->
-<div id="siswaAddCatatanModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:0.5rem;" id="siswaCatatanModalTitle"><i class="fa-solid fa-note-sticky" style="color:var(--yellow);margin-right:0.5rem;"></i> Tambah Catatan Jadwal</div>
-        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;" id="siswaJadwalInfo"></div>
-        
-        <div class="form-group">
-            <label class="form-label">Catatan Anda</label>
-            <textarea id="siswaCatatanText" class="form-control" placeholder="Tulis catatan Anda di sini..." style="min-height:100px;"></textarea>
-        </div>
-
-        <div style="display:flex; gap:0.75rem; margin-top:1rem;">
-            <button class="btn btn-outline" onclick="closeModal('siswaAddCatatanModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-yellow" onclick="submitSiswaCatatan()" style="flex:2;background:var(--yellow);color:#000;" id="btn-siswa-catatan">Simpan Catatan</button>
         </div>
     </div>
 </div>
@@ -620,7 +534,7 @@
 
 <script>
 // ==============================
-// DAFTAR KELAS
+// DAFTAR KELAS (dikelompokkan per kategori)
 // ==============================
 const KELAS_KATEGORI = {
     "KEDOKTERAN & UMUM": [
@@ -652,9 +566,6 @@ const KELAS_KATEGORI = {
         { value: "CPNS",      label: "CPNS" },
         { value: "BINTARA",   label: "Bintara" },
         { value: "PIP",       label: "PIP" },
-    ],
-    "KEDINASAN GABUNGAN": [
-        { value: "KEDINASAN-GABUNGAN", label: "Kedinasan Gabungan" },
     ]
 };
 
@@ -681,12 +592,12 @@ function getLabelKelas(value) {
 window.isLoggedIn = false;
 window.currentUser = null;
 window.currentUserRole = null;
-window.currentUserClassList = [];
+window.currentUserClass = null;
 window.currentUserName = null;
-window.adminIsAddingJadwal = false;
 let currentView = 'public';
-let editingSiswaId = null;
-let editingJadwalId = null;
+
+// Offset minggu yang sedang ditampilkan per view jadwal (0 = minggu ini)
+let weekOffsets = { siswa: 0, pengajar: 0 };
 
 // ==============================
 // UTILS
@@ -696,26 +607,12 @@ function toast(msg, type='success') {
     el.className = 'toast' + (type==='error' ? ' error' : '');
     el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}" style="color:${type==='success'?'var(--green)':'var(--red)'}"></i> ${msg}`;
     document.getElementById('toast-container').appendChild(el);
-    setTimeout(() => el.remove(), 4000);
+    setTimeout(() => el.remove(), 3500);
 }
 
 function toggleTheme() {
     const d = document.documentElement;
     d.getAttribute('data-theme') === 'dark' ? d.removeAttribute('data-theme') : d.setAttribute('data-theme','dark');
-}
-
-function toggleUserMenu() {
-    document.getElementById('userMenuDropdown').classList.toggle('show');
-    document.addEventListener('click', closeUserMenuOutside, true);
-}
-
-function closeUserMenuOutside(e) {
-    const menu = document.getElementById('userMenuDropdown');
-    const chip = document.querySelector('.user-chip');
-    if (!menu.contains(e.target) && !chip.contains(e.target)) {
-        menu.classList.remove('show');
-        document.removeEventListener('click', closeUserMenuOutside, true);
-    }
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
@@ -729,11 +626,21 @@ function setLoading(btnId, loading, label='') {
 
 function getFileIcon() { return '📄'; }
 
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+// ==============================
+// TOGGLE LIHAT PASSWORD
+// ==============================
+window.togglePassword = function(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
 }
 
 function formatDateShort(dateStr) {
@@ -776,23 +683,129 @@ function renderKelasCheckboxesGrouped() {
 }
 
 // ==============================
+// WEEK HELPERS (Senin - Minggu)
+// ==============================
+function startOfWeek(date) {
+    const d = new Date(date);
+    d.setHours(0,0,0,0);
+    const day = d.getDay(); // 0=Minggu, 1=Senin, ...
+    const diff = (day === 0 ? -6 : 1 - day); // geser ke Senin
+    d.setDate(d.getDate() + diff);
+    return d;
+}
+
+function toDateOnlyStr(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+}
+
+function getWeekRange(offset) {
+    const base = new Date();
+    base.setDate(base.getDate() + offset*7);
+    const monday = startOfWeek(base);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    return { monday, sunday };
+}
+
+function formatWeekLabel(monday, sunday) {
+    const opts = { day:'numeric', month:'short' };
+    const optsY = { day:'numeric', month:'short', year:'numeric' };
+    const sameMonth = monday.getMonth() === sunday.getMonth() && monday.getFullYear() === sunday.getFullYear();
+    if (sameMonth) {
+        return `${monday.getDate()} – ${sunday.toLocaleDateString('id-ID', optsY)}`;
+    }
+    return `${monday.toLocaleDateString('id-ID', opts)} – ${sunday.toLocaleDateString('id-ID', optsY)}`;
+}
+
+function weekOffsetLabel(offset) {
+    if (offset === 0) return 'Minggu Ini';
+    if (offset === -1) return 'Minggu Lalu';
+    if (offset === 1) return 'Minggu Depan';
+    return offset < 0 ? `${Math.abs(offset)} Minggu Lalu` : `${offset} Minggu Mendatang`;
+}
+
+const HARI_ID = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+
+// Render nav minggu + daftar jadwal dikelompokkan per hari, hanya untuk item dalam rentang minggu
+function renderWeekSchedule(items, offset, roleKey, opts={}) {
+    const { monday, sunday } = getWeekRange(offset);
+    const startStr = toDateOnlyStr(monday);
+    const endStr = toDateOnlyStr(sunday);
+    const todayStr = toDateOnlyStr(new Date());
+
+    const filtered = (items||[]).filter(j => j.tanggal >= startStr && j.tanggal <= endStr);
+
+    // Kelompokkan per tanggal, urut Senin -> Minggu
+    const byDate = {};
+    filtered.forEach(j => {
+        if (!byDate[j.tanggal]) byDate[j.tanggal] = [];
+        byDate[j.tanggal].push(j);
+    });
+
+    let daysHtml = '';
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const dStr = toDateOnlyStr(d);
+        const items_ = (byDate[dStr] || []).sort((a,b) => (a.jam||'').localeCompare(b.jam||''));
+        if (items_.length === 0) continue;
+        const isToday = dStr === todayStr;
+        daysHtml += `
+            <div class="week-day-group">
+                <div class="week-day-heading ${isToday ? 'is-today' : ''}">
+                    <span class="dot"></span>
+                    <span>${HARI_ID[d.getDay()]}, ${d.getDate()} ${d.toLocaleDateString('id-ID',{month:'short'})}${isToday ? ' • Hari Ini' : ''}</span>
+                    <span class="line"></span>
+                </div>
+                ${items_.map(j => jadwalItemHtml(j, !!opts.canDelete)).join('')}
+            </div>`;
+    }
+
+    if (!daysHtml) {
+        daysHtml = `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Tidak ada jadwal minggu ini</p></div>`;
+    }
+
+    return `
+        <div class="week-nav">
+            <button class="btn-icon-sm" onclick="changeWeek('${roleKey}', -1)"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="week-nav-label">
+                <div class="week-nav-title">${weekOffsetLabel(offset)}</div>
+                <div class="week-nav-sub">${formatWeekLabel(monday, sunday)}</div>
+                ${offset !== 0 ? `<button class="btn btn-outline btn-sm week-today-btn" style="margin-top:0.4rem;" onclick="goToday('${roleKey}')">Kembali ke Hari Ini</button>` : ''}
+            </div>
+            <button class="btn-icon-sm" onclick="changeWeek('${roleKey}', 1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div>${daysHtml}</div>
+    `;
+}
+
+window.changeWeek = function(roleKey, delta) {
+    weekOffsets[roleKey] = (weekOffsets[roleKey] || 0) + delta;
+    if (roleKey === 'siswa') renderSiswaJadwal(true);
+    else if (roleKey === 'pengajar') loadPengajarJadwal();
+}
+
+window.goToday = function(roleKey) {
+    weekOffsets[roleKey] = 0;
+    if (roleKey === 'siswa') renderSiswaJadwal(true);
+    else if (roleKey === 'pengajar') loadPengajarJadwal();
+}
+
+// ==============================
 // SUPABASE ERROR TRANSLATOR
 // ==============================
 function translateSupabaseError(msg='') {
     const lower = msg.toLowerCase();
     if (lower.includes('invalid login credentials')) return 'Email atau password salah. Coba lagi.';
     if (lower.includes('user already registered')) return 'Email ini sudah terdaftar. Silakan masuk atau gunakan email lain.';
-    if (lower.includes('email already in use')) return 'Email ini sudah terdaftar. Silakan masuk.';
     if (lower.includes('password should be at least')) return 'Password terlalu lemah. Gunakan minimal 6 karakter.';
-    if (lower.includes('email not confirmed')) return 'Email belum dikonfirmasi. Periksa kotak masuk email kamu, atau nonaktifkan "Confirm email" di Supabase Auth Settings.';
-    if (lower.includes('signup is disabled')) return 'Registrasi dinonaktifkan. Aktifkan di Supabase Auth Settings → Allow new users to sign up.';
-    if (lower.includes('email link is invalid') || lower.includes('token has expired')) return 'Link konfirmasi sudah kadaluarsa. Coba daftar ulang.';
+    if (lower.includes('email not confirmed')) return 'Email belum dikonfirmasi. Periksa kotak masuk email kamu.';
     if (lower.includes('rate limit')) return 'Terlalu banyak percobaan. Tunggu beberapa menit.';
-    if (lower.includes('network') || lower.includes('fetch')) return 'Gagal terhubung ke server. Periksa koneksi internet kamu.';
-    if (lower.includes('row-level security') || lower.includes('permission denied')) return 'Akses ditolak oleh sistem keamanan data (RLS). Pastikan trigger dan policy Supabase sudah dikonfigurasi.';
-    if (lower.includes('violates check constraint')) return 'Data tidak valid. Pastikan kelas sesuai dengan role yang dipilih.';
-    if (lower.includes('null value in column')) return 'Ada data wajib yang kosong. Cek konfigurasi trigger Supabase.';
-    if (lower.includes('duplicate key')) return 'Data sudah ada. Email ini mungkin sudah terdaftar.';
+    if (lower.includes('network')) return 'Gagal terhubung ke internet. Periksa koneksi kamu.';
+    if (lower.includes('row-level security') || lower.includes('permission denied')) return 'Akses ditolak oleh sistem keamanan data (RLS).';
     return msg || 'Terjadi kesalahan. Coba lagi.';
 }
 
@@ -800,9 +813,8 @@ function translateSupabaseError(msg='') {
 // AUTH MODAL
 // ==============================
 window.showAuth = function() {
-    document.getElementById('regClassCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
+    document.getElementById('regClass').innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + renderKelasOptionsGrouped();
     document.getElementById('classCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
-    document.getElementById('reg-email-info').style.display = 'flex';
     document.getElementById('authModal').classList.add('show');
 }
 window.closeAuth = function() { document.getElementById('authModal').classList.remove('show'); }
@@ -821,276 +833,37 @@ window.onRegRoleChange = function() {
 }
 
 // ==============================
-// EDIT PROFILE
-// ==============================
-window.openEditProfile = function() {
-    const role = window.currentUserRole;
-    document.getElementById('editNama').value = window.currentUserName || '';
-    document.getElementById('editKelasWrap').style.display = role === 'siswa' ? 'block' : 'none';
-    document.getElementById('editKelasListWrap').style.display = role === 'pengajar' ? 'block' : 'none';
-
-    if (role === 'siswa') {
-        document.getElementById('editClassCheckboxesSiswa').innerHTML = renderKelasCheckboxesGrouped();
-        const kelasList = window.currentUser?.kelas_list || [];
-        document.querySelectorAll('#editClassCheckboxesSiswa input[type="checkbox"]').forEach(cb => {
-            cb.checked = kelasList.includes(cb.value);
-        });
-    } else if (role === 'pengajar') {
-        document.getElementById('editClassCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
-        const kelasList = window.currentUser?.kelas_list || [];
-        document.querySelectorAll('#editClassCheckboxes input[type="checkbox"]').forEach(cb => {
-            cb.checked = kelasList.includes(cb.value);
-        });
-    }
-
-    document.getElementById('editProfileModal').classList.add('show');
-}
-
-window.submitEditProfile = async function() {
-    const nama = document.getElementById('editNama').value.trim();
-    const role = window.currentUserRole;
-
-    if (!nama) { toast('Nama tidak boleh kosong!', 'error'); return; }
-
-    let updateData = { nama };
-
-    if (role === 'siswa') {
-        const kelasList = [...document.querySelectorAll('#editClassCheckboxesSiswa input:checked')].map(c => c.value);
-        if (!kelasList.length) { toast('Pilih minimal satu kelas!', 'error'); return; }
-        updateData.kelas_list = kelasList;
-    } else if (role === 'pengajar') {
-        const kelasList = [...document.querySelectorAll('#editClassCheckboxes input:checked')].map(c => c.value);
-        if (!kelasList.length) { toast('Pilih minimal satu kelas yang diajar!', 'error'); return; }
-        updateData.kelas_list = kelasList;
-    }
-
-    setLoading('btn-edit-profile', true);
-    try {
-        const { error } = await window.sb.from('profiles').update(updateData).eq('id', window.currentUser.id);
-        if (error) throw error;
-
-        window.currentUserName = nama;
-        if (role === 'siswa') window.currentUserClassList = updateData.kelas_list;
-        window.currentUser.kelas_list = updateData.kelas_list;
-
-        closeModal('editProfileModal');
-        updateTopBar();
-        toast('Profile berhasil diperbarui!');
-        showView(currentView);
-    } catch(e) {
-        toast('Gagal: ' + translateSupabaseError(e.message), 'error');
-    }
-    setLoading('btn-edit-profile', false, 'Simpan Perubahan');
-}
-
-// ==============================
-// ADMIN EDIT SISWA
-// ==============================
-window.openAdminEditSiswa = function(siswaId, nama, email, kelasListStr) {
-    editingSiswaId = siswaId;
-    document.getElementById('adminEditNama').value = nama;
-    document.getElementById('adminEditEmail').value = email;
-    document.getElementById('adminEditKelasCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
-    const kelasList = kelasListStr ? kelasListStr.split('|').filter(Boolean) : [];
-    document.querySelectorAll('#adminEditKelasCheckboxes input[type="checkbox"]').forEach(cb => {
-        cb.checked = kelasList.includes(cb.value);
-    });
-    document.getElementById('adminEditSiswaModal').classList.add('show');
-}
-
-window.submitAdminEditSiswa = async function() {
-    if (!editingSiswaId) { toast('Error: ID siswa tidak ditemukan', 'error'); return; }
-    const kelasList = [...document.querySelectorAll('#adminEditKelasCheckboxes input:checked')].map(c => c.value);
-    if (!kelasList.length) { toast('Pilih minimal satu kelas!', 'error'); return; }
-
-    setLoading('btn-admin-edit', true);
-    try {
-        const { error } = await window.sb.from('profiles').update({ kelas_list: kelasList }).eq('id', editingSiswaId);
-        if (error) throw error;
-        closeModal('adminEditSiswaModal');
-        toast('Data siswa berhasil diperbarui!');
-        await renderAdminDashboard();
-    } catch(e) {
-        toast('Gagal: ' + translateSupabaseError(e.message), 'error');
-    }
-    setLoading('btn-admin-edit', false, 'Simpan');
-}
-
-// ==============================
-// ADMIN EDIT JADWAL
-// ==============================
-window.openAdminEditJadwal = function(jadwalId, judul, tanggal, jam, ruangan, catatan) {
-    editingJadwalId = jadwalId;
-    document.getElementById('adminJadwalJudul').value = judul || '';
-    document.getElementById('adminJadwalTanggal').value = tanggal || '';
-    document.getElementById('adminJadwalJam').value = jam || '';
-    document.getElementById('adminJadwalRuangan').value = ruangan || '';
-    document.getElementById('adminJadwalCatatan').value = catatan || '';
-    document.getElementById('adminEditJadwalModal').classList.add('show');
-}
-
-window.submitAdminEditJadwal = async function() {
-    if (!editingJadwalId) { toast('Error: ID jadwal tidak ditemukan', 'error'); return; }
-
-    const judul = document.getElementById('adminJadwalJudul').value.trim();
-    const tanggal = document.getElementById('adminJadwalTanggal').value;
-    const jam = document.getElementById('adminJadwalJam').value;
-    const ruangan = document.getElementById('adminJadwalRuangan').value.trim();
-    const catatan = document.getElementById('adminJadwalCatatan').value.trim();
-
-    if (!judul || !tanggal || !jam) { toast('Isi field yang wajib!', 'error'); return; }
-
-    setLoading('btn-admin-jadwal-submit', true);
-    try {
-        const { error } = await window.sb.from('jadwal').update({
-            judul, tanggal, jam, ruangan, catatan
-        }).eq('id', editingJadwalId);
-        if (error) throw error;
-
-        closeModal('adminEditJadwalModal');
-        toast('Jadwal berhasil diperbarui!');
-        await renderAdminJadwal();
-    } catch(e) {
-        toast('Gagal: ' + translateSupabaseError(e.message), 'error');
-    }
-    setLoading('btn-admin-jadwal-submit', false, 'Simpan');
-}
-
-window.deleteAdminJadwal = async function(id) {
-    if (!confirm('Hapus jadwal ini?')) return;
-    try {
-        const { error } = await window.sb.from('jadwal').delete().eq('id', id);
-        if (error) throw error;
-        toast('Jadwal dihapus.');
-        await renderAdminJadwal();
-    } catch(e) { toast('Gagal: ' + translateSupabaseError(e.message), 'error'); }
-}
-
-// ==============================
-// [UPDATED] LOAD CATATAN SISWA (dipakai siswa/pengajar/admin)
-// ==============================
-async function loadCatatanMap(jadwalIds) {
-    const map = {};
-    if (!jadwalIds || jadwalIds.length === 0) return map;
-    try {
-        const { data, error } = await window.sb
-            .from('jadwal_catatan_siswa')
-            .select('*')
-            .in('jadwal_id', jadwalIds)
-            .order('created_at', { ascending: true });
-        if (error) throw error;
-        (data || []).forEach(c => {
-            if (!map[c.jadwal_id]) map[c.jadwal_id] = [];
-            map[c.jadwal_id].push(c);
-        });
-    } catch(e) {
-        console.error('Gagal memuat catatan siswa:', e);
-    }
-    return map;
-}
-
-// ==============================
-// SISWA CATATAN JADWAL (INSERT & EDIT)
-// ==============================
-let selectedJadwalForCatatan = null;
-let selectedCatatanId = null;
-
-window.openSiswaCatatanModal = function(jadwalId, judul, tanggal, jam, existingCatatanId = null, existingCatatanText = '') {
-    selectedJadwalForCatatan = jadwalId;
-    selectedCatatanId = existingCatatanId;
-    const { day, month } = formatDateShort(tanggal);
-    document.getElementById('siswaJadwalInfo').innerHTML =
-        `<strong>${escapeHtml(judul)}</strong><br>${day} ${month} - ${escapeHtml(jam || '—')}`;
-    document.getElementById('siswaCatatanText').value = existingCatatanText || '';
-
-    document.getElementById('siswaCatatanModalTitle').innerHTML = existingCatatanId
-        ? '<i class="fa-solid fa-pen" style="color:var(--yellow);margin-right:0.5rem;"></i> Edit Catatan Jadwal'
-        : '<i class="fa-solid fa-note-sticky" style="color:var(--yellow);margin-right:0.5rem;"></i> Tambah Catatan Jadwal';
-    document.getElementById('btn-siswa-catatan').textContent = existingCatatanId ? 'Simpan Perubahan' : 'Simpan Catatan';
-
-    document.getElementById('siswaAddCatatanModal').classList.add('show');
-}
-
-window.submitSiswaCatatan = async function() {
-    if (!selectedJadwalForCatatan) { toast('Error: ID jadwal tidak ditemukan', 'error'); return; }
-    const catatan = document.getElementById('siswaCatatanText').value.trim();
-
-    if (!catatan) { toast('Catatan tidak boleh kosong!', 'error'); return; }
-
-    setLoading('btn-siswa-catatan', true);
-    try {
-        let error;
-        if (selectedCatatanId) {
-            ({ error } = await window.sb
-                .from('jadwal_catatan_siswa')
-                .update({ catatan })
-                .eq('id', selectedCatatanId)
-                .eq('siswa_id', window.currentUser.id));
-        } else {
-            ({ error } = await window.sb.from('jadwal_catatan_siswa').insert({
-                jadwal_id: selectedJadwalForCatatan,
-                siswa_id: window.currentUser.id,
-                siswa_nama: window.currentUserName,
-                catatan: catatan
-            }));
-        }
-        if (error) throw error;
-
-        closeModal('siswaAddCatatanModal');
-        toast(selectedCatatanId ? 'Catatan berhasil diperbarui!' : 'Catatan berhasil disimpan!');
-        selectedCatatanId = null;
-
-        if (currentView === 'siswa-jadwal') await renderSiswaJadwal();
-        else if (currentView === 'siswa-dashboard') await renderSiswaDashboard();
-    } catch(e) {
-        toast('Gagal: ' + translateSupabaseError(e.message), 'error');
-    }
-    setLoading('btn-siswa-catatan', false, selectedCatatanId ? 'Simpan Perubahan' : 'Simpan Catatan');
-}
-
-// ==============================
 // LOAD PROFILE
 // ==============================
 async function loadProfileAndRoute() {
-    try {
-        const { data: authData, error: authErr } = await window.sb.auth.getUser();
-        if (authErr) throw authErr;
-        const user = authData?.user;
-        if (!user) { showView('public'); return; }
+    // FIX: Selalu pakai window.sb agar tidak tergantung scope variabel lokal
+    const { data: authData } = await window.sb.auth.getUser();
+    const user = authData?.user;
+    if (!user) { showView('public'); return; }
 
-        let profile = null;
-        let profErr = null;
-        for (let attempt = 0; attempt < 2; attempt++) {
-            const res = await window.sb.from('profiles').select('*').eq('id', user.id).single();
-            profile = res.data;
-            profErr = res.error;
-            if (profile) break;
-            if (attempt === 0) await new Promise(r => setTimeout(r, 1500));
-        }
+    const { data: profile, error } = await window.sb
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
-        if (profErr || !profile) {
-            console.error('Profile error:', profErr);
-            toast('Profil tidak ditemukan. Mungkin trigger Supabase belum berjalan. Hubungi admin.', 'error');
-            await window.sb.auth.signOut();
-            showView('public');
-            return;
-        }
-
-        window.currentUser = profile;
-        window.isLoggedIn = true;
-        window.currentUserRole = profile.role;
-        window.currentUserClassList = profile.kelas_list || [];
-        window.currentUserName = profile.nama || user.email;
-
-        renderRibbon();
-        if (profile.role === 'admin') showView('admin-dashboard');
-        else if (profile.role === 'pengajar') showView('pengajar-dashboard');
-        else showView('siswa-dashboard');
-    } catch(e) {
-        console.error('loadProfileAndRoute error:', e);
-        toast('Gagal memuat profil: ' + translateSupabaseError(e.message), 'error');
+    if (error || !profile) {
+        toast('Profil tidak ditemukan. Silakan daftar ulang atau hubungi admin.', 'error');
+        await window.sb.auth.signOut();
         showView('public');
+        return;
     }
+
+    window.currentUser = profile;
+    window.isLoggedIn = true;
+    window.currentUserRole = profile.role;
+    window.currentUserClass = profile.kelas || null;
+    window.currentUserName = profile.nama || user.email;
+
+    renderRibbon();
+    if (profile.role === 'admin') showView('admin-dashboard');
+    else if (profile.role === 'pengajar') showView('pengajar-dashboard');
+    else showView('siswa-dashboard');
 }
 
 // ==============================
@@ -1109,7 +882,10 @@ window.processLogin = async function() {
         if (error) throw error;
 
         const { data: profile, error: profErr } = await window.sb
-            .from('profiles').select('*').eq('id', data.user.id).single();
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
 
         if (profErr || !profile) {
             toast('Profil pengguna tidak ditemukan. Silakan daftar ulang.', 'error');
@@ -1144,13 +920,11 @@ window.processRegister = async function() {
     const role = document.getElementById('regRole').value;
 
     if (!nama || !email || !password || !role) { toast('Isi semua field!', 'error'); return; }
-    if (password.length < 6) { toast('Password minimal 6 karakter!', 'error'); return; }
-    if (!email.includes('@')) { toast('Format email tidak valid!', 'error'); return; }
 
-    let kelasListSiswa = [], kelasList = [];
+    let kelas = null, kelasList = [];
     if (role === 'siswa') {
-        kelasListSiswa = [...document.querySelectorAll('#regClassCheckboxes input:checked')].map(c => c.value);
-        if (!kelasListSiswa.length) { toast('Pilih minimal satu kelas!', 'error'); return; }
+        kelas = document.getElementById('regClass').value;
+        if (!kelas || !KELAS_LIST.includes(kelas)) { toast('Pilih kelas kamu!', 'error'); return; }
     }
     if (role === 'pengajar') {
         kelasList = [...document.querySelectorAll('#classCheckboxes input:checked')].map(c => c.value);
@@ -1159,58 +933,39 @@ window.processRegister = async function() {
 
     setLoading('btn-register', true);
     try {
-        const signUpPayload = {
+        const { data, error } = await window.sb.auth.signUp({
             email,
             password,
             options: {
                 data: {
                     nama,
                     role,
-                    kelas_list: role === 'siswa' ? kelasListSiswa : (role === 'pengajar' ? kelasList : null)
+                    kelas: role === 'siswa' ? kelas : null,
+                    kelas_list: role === 'pengajar' ? kelasList : null
                 }
             }
-        };
-
-        const { data, error } = await window.sb.auth.signUp(signUpPayload);
+        });
 
         if (error) throw error;
-
-        if (!data.user) {
-            toast('Registrasi gagal. Coba lagi.', 'error');
-            setLoading('btn-register', false, '<span>Daftar Sekarang</span>');
-            return;
-        }
-
-        if (data.user && data.user.identities && data.user.identities.length === 0) {
-            toast('Email ini sudah terdaftar! Silakan masuk dengan akun yang ada.', 'error');
-            setTimeout(() => {
-                switchTab('login');
-                document.getElementById('loginEmail').value = email;
-            }, 800);
-            setLoading('btn-register', false, '<span>Daftar Sekarang</span>');
-            return;
-        }
 
         closeAuth();
 
         if (!data.session) {
-            toast(`✅ Akun dibuat! Cek email ${email} untuk konfirmasi. Jika tidak ada, periksa folder spam atau matikan "Confirm email" di Supabase Auth Settings.`);
+            toast(`Akun dibuat! Silakan cek email ${email} untuk konfirmasi sebelum masuk.`);
         } else {
-            toast(`🎉 Akun berhasil dibuat! Selamat datang, ${nama}!`);
+            toast(`Akun berhasil dibuat! Selamat datang, ${nama}! 🎉`);
             await loadProfileAndRoute();
         }
     } catch(e) {
-        const errMsg = e.message || '';
-        console.error('Register error:', errMsg);
-
-        if (errMsg.toLowerCase().includes('already registered') || errMsg.toLowerCase().includes('already in use')) {
-            toast('Email ini sudah terdaftar! Silakan masuk.', 'error');
+        if (e.message?.toLowerCase().includes('already registered')) {
+            toast('Email ini sudah terdaftar! Silakan masuk dengan akun yang ada.', 'error');
             setTimeout(() => {
                 switchTab('login');
                 document.getElementById('loginEmail').value = email;
+                document.getElementById('loginEmail').focus();
             }, 800);
         } else {
-            toast(translateSupabaseError(errMsg), 'error');
+            toast(translateSupabaseError(e.message), 'error');
         }
     }
     setLoading('btn-register', false, '<span>Daftar Sekarang</span>');
@@ -1253,8 +1008,6 @@ window.showView = function(viewName) {
         else if (viewName === 'pengajar-jadwal') renderPengajarJadwal();
         else if (viewName === 'pengajar-upload') renderPengajarUpload();
         else if (viewName === 'admin-dashboard') renderAdminDashboard();
-        else if (viewName === 'admin-siswa') renderAdminSiswa();
-        else if (viewName === 'admin-jadwal') renderAdminJadwal();
     }
     updateRibbonActive();
 }
@@ -1286,8 +1039,6 @@ window.renderRibbon = function() {
         ],
         admin: [
             { icon:'fa-gauge', label:'Dashboard', view:'admin-dashboard' },
-            { icon:'fa-users', label:'Siswa', view:'admin-siswa' },
-            { icon:'fa-calendar-check', label:'Jadwal', view:'admin-jadwal' },
         ]
     };
 
@@ -1364,7 +1115,7 @@ async function renderSiswaDashboard() {
             <div>
                 <div style="font-size:0.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.07em;">Siswa</div>
                 <div class="page-title">Halo, <span>${(window.currentUserName||'').split(' ')[0]}</span> 👋</div>
-                <div style="font-size:0.85rem;color:var(--muted);margin-top:0.4rem;display:flex;flex-wrap:wrap;gap:0.3rem;align-items:center;">Kelas: ${(window.currentUserClassList||[]).map(k=>badgeKelas(k)).join(' ')}</div>
+                <div style="font-size:0.85rem;color:var(--muted);margin-top:0.4rem;">Kelas: ${badgeKelas(window.currentUserClass||'')}</div>
             </div>
         </div>
 
@@ -1383,8 +1134,8 @@ async function renderSiswaDashboard() {
         </div>
     </div>`;
 
-    const kelasList = window.currentUserClassList || [];
-    if (!kelasList.length) {
+    const kelas = window.currentUserClass;
+    if (!kelas) {
         document.getElementById('siswa-jadwal-preview').innerHTML = `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Kelas tidak ditemukan. Hubungi admin.</p></div>`;
         document.getElementById('siswa-materi-preview').innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Kelas tidak ditemukan.</p></div>`;
         return;
@@ -1394,21 +1145,25 @@ async function renderSiswaDashboard() {
         const today = new Date().toISOString().split('T')[0];
 
         const { data: jadwals, error: jErr } = await window.sb
-            .from('jadwal').select('*').in('kelas', kelasList)
-            .gte('tanggal', today).order('tanggal', { ascending: true }).limit(3);
+            .from('jadwal')
+            .select('*')
+            .eq('kelas', kelas)
+            .gte('tanggal', today)
+            .order('tanggal', { ascending: true })
+            .limit(3);
         if (jErr) throw jErr;
-
-        const jadwalIds = jadwals.map(j => j.id);
-        const catatanMap = await loadCatatanMap(jadwalIds);
 
         document.getElementById('stat-jadwal').textContent = jadwals.length;
         document.getElementById('siswa-jadwal-preview').innerHTML = jadwals.length === 0
             ? `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Belum ada jadwal mendatang</p></div>`
-            : jadwals.map(j => jadwalItemHtml(j, false, true, catatanMap[j.id] || [])).join('');
+            : jadwals.map(j => jadwalItemHtml(j)).join('');
 
         const { data: files, count, error: fErr } = await window.sb
-            .from('soal_files').select('*', { count: 'exact' }).in('kelas', kelasList)
-            .order('created_at', { ascending: false }).limit(3);
+            .from('soal_files')
+            .select('*', { count: 'exact' })
+            .eq('kelas', kelas)
+            .order('created_at', { ascending: false })
+            .limit(3);
         if (fErr) throw fErr;
 
         document.getElementById('stat-materi').textContent = count ?? files.length;
@@ -1426,9 +1181,10 @@ async function renderSiswaDashboard() {
 }
 
 // ==============================
-// SISWA JADWAL
+// SISWA JADWAL (MINGGUAN)
 // ==============================
-async function renderSiswaJadwal() {
+async function renderSiswaJadwal(preserveOffset=false) {
+    if (!preserveOffset) weekOffsets.siswa = 0;
     document.getElementById('app').innerHTML = `
     <div class="container">
         <div class="page-header">
@@ -1439,22 +1195,22 @@ async function renderSiswaJadwal() {
         </div>
     </div>`;
 
+    const kelas = window.currentUserClass;
     try {
-        const kelasList = window.currentUserClassList || [];
         const { data: items, error } = await window.sb
-            .from('jadwal').select('*').in('kelas', kelasList)
+            .from('jadwal')
+            .select('*')
+            .eq('kelas', kelas)
             .order('tanggal', { ascending: true });
         if (error) throw error;
 
-        const jadwalIds = items.map(j => j.id);
-        const catatanMap = await loadCatatanMap(jadwalIds);
-
-        document.getElementById('jadwal-list').innerHTML = items.length === 0
-            ? `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Belum ada jadwal untuk kelas kamu</p></div>`
-            : items.map(j => jadwalItemHtml(j, false, true, catatanMap[j.id] || [])).join('');
+        const el = document.getElementById('jadwal-list');
+        if (!el) return;
+        el.innerHTML = renderWeekSchedule(items, weekOffsets.siswa, 'siswa', { canDelete: false });
     } catch(e) {
         const msg = translateSupabaseError(e.message);
-        document.getElementById('jadwal-list').innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red)"></i><p>${msg}</p></div>`;
+        const el = document.getElementById('jadwal-list');
+        if (el) el.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red)"></i><p>${msg}</p></div>`;
     }
 }
 
@@ -1472,10 +1228,12 @@ async function renderSiswaMateri() {
         </div>
     </div>`;
 
+    const kelas = window.currentUserClass;
     try {
-        const kelasList = window.currentUserClassList || [];
         const { data: files, error } = await window.sb
-            .from('soal_files').select('*').in('kelas', kelasList)
+            .from('soal_files')
+            .select('*')
+            .eq('kelas', kelas)
             .order('created_at', { ascending: false });
         if (error) throw error;
 
@@ -1518,12 +1276,15 @@ async function renderPengajarDashboard() {
 
     try {
         const { data: allJadwal, error: jErr } = await window.sb
-            .from('jadwal').select('*', { count: 'exact' })
-            .eq('pengajar_id', window.currentUser.id).order('tanggal', { ascending: false });
+            .from('jadwal')
+            .select('*', { count: 'exact' })
+            .eq('pengajar_id', window.currentUser.id)
+            .order('tanggal', { ascending: false });
         if (jErr) throw jErr;
 
         const { count: fileCount, error: fErr } = await window.sb
-            .from('soal_files').select('*', { count: 'exact', head: true })
+            .from('soal_files')
+            .select('*', { count: 'exact', head: true })
             .eq('pengajar_id', window.currentUser.id);
         if (fErr) throw fErr;
 
@@ -1531,10 +1292,9 @@ async function renderPengajarDashboard() {
         document.getElementById('pg-stat-file').textContent = fileCount ?? 0;
 
         const recent = allJadwal.slice(0,5);
-        const catatanMap = await loadCatatanMap(recent.map(j => j.id));
         document.getElementById('pg-jadwal-list').innerHTML = recent.length === 0
             ? `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Belum ada jadwal</p></div>`
-            : recent.map(j => jadwalItemHtml(j, true, false, catatanMap[j.id] || [])).join('');
+            : recent.map(j => jadwalItemHtml(j)).join('');
     } catch(e) {
         console.error(e);
         toast(translateSupabaseError(e.message), 'error');
@@ -1542,9 +1302,10 @@ async function renderPengajarDashboard() {
 }
 
 // ==============================
-// PENGAJAR JADWAL
+// PENGAJAR JADWAL (MINGGUAN)
 // ==============================
 async function renderPengajarJadwal() {
+    weekOffsets.pengajar = 0;
     document.getElementById('app').innerHTML = `
     <div class="container">
         <div class="page-header">
@@ -1562,22 +1323,23 @@ async function renderPengajarJadwal() {
 async function loadPengajarJadwal() {
     try {
         const { data: allJadwal, error } = await window.sb
-            .from('jadwal').select('*').eq('pengajar_id', window.currentUser.id)
-            .order('tanggal', { ascending: false });
+            .from('jadwal')
+            .select('*')
+            .eq('pengajar_id', window.currentUser.id)
+            .order('tanggal', { ascending: true });
         if (error) throw error;
-
-        const catatanMap = await loadCatatanMap(allJadwal.map(j => j.id));
 
         const el = document.getElementById('pg-jadwal-full');
         if (!el) return;
-        el.innerHTML = allJadwal.length === 0
-            ? `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Belum ada jadwal. Tambah jadwal baru!</p></div>`
-            : allJadwal.map(j => jadwalItemHtml(j, true, false, catatanMap[j.id] || [])).join('');
-    } catch(e) { toast('Gagal memuat jadwal: '+translateSupabaseError(e.message),'error'); }
+        el.innerHTML = renderWeekSchedule(allJadwal, weekOffsets.pengajar, 'pengajar', { canDelete: true });
+    } catch(e) {
+        const el = document.getElementById('pg-jadwal-full');
+        if (el) el.innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red)"></i><p>${translateSupabaseError(e.message)}</p></div>`;
+        toast('Gagal memuat jadwal: '+translateSupabaseError(e.message),'error');
+    }
 }
 
 window.openJadwalModal = function() {
-    window.adminIsAddingJadwal = false;
     const kelasList = window.currentUser?.kelas_list || [];
     const sel = document.getElementById('jadwalKelas');
     sel.innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` +
@@ -1595,14 +1357,12 @@ window.submitJadwal = async function() {
 
     if (!judul || !tanggal || !jam || !kelas) { toast('Isi field yang wajib!','error'); return; }
 
-    const isAdminMode = !!window.adminIsAddingJadwal;
-
     setLoading('btn-jadwal-submit', true);
     try {
         const { error } = await window.sb.from('jadwal').insert({
             judul, tanggal, jam, ruangan, kelas, catatan,
             pengajar_id: window.currentUser.id,
-            pengajar_nama: isAdminMode ? `${window.currentUserName} (Admin)` : window.currentUserName
+            pengajar_nama: window.currentUserName
         });
         if (error) throw error;
 
@@ -1612,12 +1372,12 @@ window.submitJadwal = async function() {
         document.getElementById('jadwalRuangan').value = '';
         document.getElementById('jadwalCatatan').value = '';
 
-        if (isAdminMode) {
-            window.adminIsAddingJadwal = false;
-            await renderAdminJadwal();
-        } else {
-            await loadPengajarJadwal();
-        }
+        // Loncat ke minggu tempat jadwal baru berada agar langsung terlihat
+        const target = new Date(tanggal + 'T00:00:00');
+        const diffDays = Math.round((startOfWeek(target) - startOfWeek(new Date())) / (1000*60*60*24));
+        weekOffsets.pengajar = Math.round(diffDays / 7);
+
+        await loadPengajarJadwal();
     } catch(e) {
         toast('Gagal: '+translateSupabaseError(e.message),'error');
     }
@@ -1655,15 +1415,19 @@ async function renderPengajarUpload() {
 async function loadPengajarFiles() {
     try {
         const { data: allFiles, error } = await window.sb
-            .from('soal_files').select('*').eq('pengajar_id', window.currentUser.id)
+            .from('soal_files')
+            .select('*')
+            .eq('pengajar_id', window.currentUser.id)
             .order('created_at', { ascending: false });
         if (error) throw error;
 
         const el = document.getElementById('pg-files-list');
         if (!el) return;
-        el.innerHTML = allFiles.length === 0
-            ? `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Belum ada file. Upload soal latihan PDF!</p></div>`
-            : allFiles.map(f => fileItemHtml(f, true)).join('');
+        if (allFiles.length === 0) {
+            el.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>Belum ada file. Upload soal latihan PDF!</p></div>`;
+        } else {
+            el.innerHTML = allFiles.map(f => fileItemHtml(f, true)).join('');
+        }
     } catch(e) { toast('Gagal memuat file: '+translateSupabaseError(e.message),'error'); }
 }
 
@@ -1686,7 +1450,9 @@ window.submitUpload = async function() {
 
     const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     if (!isPdf) { toast('File harus berformat PDF!','error'); return; }
-    if (file.size > 15 * 1024 * 1024) { toast('Ukuran file maksimal 15MB!','error'); return; }
+
+    const maxSize = 15 * 1024 * 1024;
+    if (file.size > maxSize) { toast('Ukuran file maksimal 15MB!','error'); return; }
 
     const btn = document.getElementById('btn-upload-submit');
     btn.disabled = true; btn.textContent = 'Mengunggah...';
@@ -1696,8 +1462,10 @@ window.submitUpload = async function() {
 
     try {
         const storagePath = `soal/${kelas}/${Date.now()}_${file.name}`;
+
         const { error: uploadErr } = await window.sb.storage
-            .from('soal-pdf').upload(storagePath, file, { contentType: 'application/pdf', upsert: false });
+            .from('soal-pdf')
+            .upload(storagePath, file, { contentType: 'application/pdf', upsert: false });
         if (uploadErr) throw uploadErr;
 
         document.getElementById('uploadBar').style.width = '80%';
@@ -1737,7 +1505,9 @@ window.submitUpload = async function() {
 
 window.downloadFile = async function(storagePath, fileName) {
     try {
-        const { data, error } = await window.sb.storage.from('soal-pdf').createSignedUrl(storagePath, 60);
+        const { data, error } = await window.sb.storage
+            .from('soal-pdf')
+            .createSignedUrl(storagePath, 60);
         if (error) throw error;
         window.open(data.signedUrl, '_blank');
     } catch(e) {
@@ -1748,7 +1518,9 @@ window.downloadFile = async function(storagePath, fileName) {
 window.deleteFile = async function(id, storagePath) {
     if (!confirm('Hapus file ini?')) return;
     try {
-        if (storagePath) await window.sb.storage.from('soal-pdf').remove([storagePath]);
+        if (storagePath) {
+            await window.sb.storage.from('soal-pdf').remove([storagePath]);
+        }
         const { error } = await window.sb.from('soal_files').delete().eq('id', id);
         if (error) throw error;
         toast('File dihapus.');
@@ -1775,6 +1547,10 @@ async function renderAdminDashboard() {
             <div class="card-title">Semua Pengguna</div>
             <div id="adm-users"><div class="loading-spinner"></div></div>
         </div>
+        <div class="card">
+            <div class="card-title"><i class="fa-solid fa-calendar-week" style="color:var(--red);margin-right:0.5rem;"></i>Jadwal Semua Kelas (Mingguan)</div>
+            <div id="adm-jadwal-week"><div class="loading-spinner"></div></div>
+        </div>
     </div>`;
 
     try {
@@ -1796,120 +1572,62 @@ async function renderAdminDashboard() {
 
         document.getElementById('adm-users').innerHTML = users.length === 0
             ? `<div class="empty-state"><p>Belum ada pengguna</p></div>`
-            : `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
+            : `<table style="width:100%;border-collapse:collapse;">
                 <thead><tr style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">
                     <th style="text-align:left;padding:0.5rem 0;border-bottom:1px solid var(--border);">Nama</th>
                     <th style="text-align:left;padding:0.5rem 0;border-bottom:1px solid var(--border);">Email</th>
                     <th style="text-align:left;padding:0.5rem 0;border-bottom:1px solid var(--border);">Peran</th>
                     <th style="text-align:left;padding:0.5rem 0;border-bottom:1px solid var(--border);">Kelas</th>
-                    <th style="text-align:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">Aksi</th>
                 </tr></thead>
                 <tbody>${users.map(u=>`<tr style="font-size:0.9rem;border-bottom:1px solid var(--border);">
                     <td style="padding:0.65rem 0;">${u.nama||'—'}</td>
-                    <td style="padding:0.65rem 0;color:var(--muted);font-size:0.82rem;">${u.email||'—'}</td>
+                    <td style="padding:0.65rem 0;color:var(--muted);">${u.email||'—'}</td>
                     <td style="padding:0.65rem 0;">${badgeRole(u.role)}</td>
                     <td style="padding:0.65rem 0;">${
-                        (u.kelas_list?.map(k=>getLabelKelas(k)).join(', ')) || '—'
-                    }</td>
-                    <td style="padding:0.65rem 0;text-align:center;">${
-                        u.role === 'siswa'
-                            ? `<button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${u.id}', '${(u.nama||'').replace(/'/g,"\\'")}', '${u.email||''}', '${(u.kelas_list||[]).join('|')}')"><i class="fa-solid fa-edit"></i></button>`
-                            : '—'
+                        u.kelas ? getLabelKelas(u.kelas)
+                        : (u.kelas_list?.map(k=>getLabelKelas(k)).join(', ')) || '—'
                     }</td>
                 </tr>`).join('')}</tbody>
-            </table></div>`;
+            </table>`;
+
+        // Jadwal seluruh kelas, mingguan
+        weekOffsets.admin = weekOffsets.admin || 0;
+        const { data: allJadwalAdmin, error: ajErr } = await window.sb
+            .from('jadwal')
+            .select('*')
+            .order('tanggal', { ascending: true });
+        if (ajErr) throw ajErr;
+
+        const el = document.getElementById('adm-jadwal-week');
+        if (el) el.innerHTML = renderWeekSchedule(allJadwalAdmin, weekOffsets.admin, 'admin', { canDelete: false });
     } catch(e) { toast('Gagal memuat data admin: '+translateSupabaseError(e.message),'error'); }
 }
 
-// ==============================
-// ADMIN SISWA VIEW
-// ==============================
-async function renderAdminSiswa() {
-    document.getElementById('app').innerHTML = `
-    <div class="container">
-        <div class="page-header">
-            <div class="page-title">Kelola <span>Siswa</span></div>
-        </div>
-        <div class="card">
-            <div id="admin-siswa-list"><div class="loading-spinner"></div></div>
-        </div>
-    </div>`;
-
-    try {
-        const { data: siswa, error } = await window.sb
-            .from('profiles').select('*').eq('role', 'siswa').order('nama', { ascending: true });
-        if (error) throw error;
-
-        const el = document.getElementById('admin-siswa-list');
-        if (siswa.length === 0) {
-            el.innerHTML = `<div class="empty-state"><i class="fa-regular fa-user"></i><p>Belum ada siswa terdaftar</p></div>`;
-        } else {
-            el.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
-                <thead><tr style="font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">
-                    <th style="text-align:left;padding:0.5rem 0;border-bottom:1px solid var(--border);">Nama</th>
-                    <th style="text-align:left;padding:0.5rem 0;border-bottom:1px solid var(--border);">Email</th>
-                    <th style="text-align:left;padding:0.5rem 0;border-bottom:1px solid var(--border);">Kelas</th>
-                    <th style="text-align:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">Aksi</th>
-                </tr></thead>
-                <tbody>${siswa.map(s=>`<tr style="font-size:0.9rem;border-bottom:1px solid var(--border);">
-                    <td style="padding:0.65rem 0;">${s.nama||'—'}</td>
-                    <td style="padding:0.65rem 0;color:var(--muted);font-size:0.82rem;">${s.email||'—'}</td>
-                    <td style="padding:0.65rem 0;">${(s.kelas_list||[]).length ? s.kelas_list.map(k=>badgeKelas(k)).join(' ') : '<span style="color:var(--muted);">—</span>'}</td>
-                    <td style="padding:0.65rem 0;text-align:center;">
-                        <button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${s.id}', '${(s.nama||'').replace(/'/g,"\\'")}', '${s.email||''}', '${(s.kelas_list||[]).join('|')}')"><i class="fa-solid fa-edit"></i> Edit</button>
-                    </td>
-                </tr>`).join('')}</tbody>
-            </table></div>`;
-        }
-    } catch(e) {
-        const msg = translateSupabaseError(e.message);
-        document.getElementById('admin-siswa-list').innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red)"></i><p>${msg}</p></div>`;
-    }
+// dukung navigasi minggu untuk admin juga
+window.changeWeek = function(roleKey, delta) {
+    weekOffsets[roleKey] = (weekOffsets[roleKey] || 0) + delta;
+    if (roleKey === 'siswa') renderSiswaJadwal(true);
+    else if (roleKey === 'pengajar') loadPengajarJadwal();
+    else if (roleKey === 'admin') loadAdminJadwalWeek();
 }
-
-// ==============================
-// ADMIN JADWAL VIEW
-// ==============================
-async function renderAdminJadwal() {
-    document.getElementById('app').innerHTML = `
-    <div class="container">
-        <div class="page-header">
-            <div class="page-title">Kelola <span>Jadwal</span></div>
-            <button class="btn btn-red btn-sm" onclick="openAdminAddJadwalModal()"><i class="fa-solid fa-plus"></i> Tambah Jadwal</button>
-        </div>
-        <div class="card">
-            <div id="admin-jadwal-list"><div class="loading-spinner"></div></div>
-        </div>
-    </div>`;
-
-    try {
-        const { data: jadwals, error } = await window.sb
-            .from('jadwal').select('*').order('tanggal', { ascending: false });
-        if (error) throw error;
-
-        const catatanMap = await loadCatatanMap(jadwals.map(j => j.id));
-
-        const el = document.getElementById('admin-jadwal-list');
-        if (jadwals.length === 0) {
-            el.innerHTML = `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Belum ada jadwal</p></div>`;
-        } else {
-            el.innerHTML = jadwals.map(j => jadwalItemHtml(j, true, false, catatanMap[j.id] || [])).join('');
-        }
-    } catch(e) {
-        const msg = translateSupabaseError(e.message);
-        document.getElementById('admin-jadwal-list').innerHTML = `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="color:var(--red)"></i><p>${msg}</p></div>`;
-    }
+window.goToday = function(roleKey) {
+    weekOffsets[roleKey] = 0;
+    if (roleKey === 'siswa') renderSiswaJadwal(true);
+    else if (roleKey === 'pengajar') loadPengajarJadwal();
+    else if (roleKey === 'admin') loadAdminJadwalWeek();
 }
-
-// [BARU] Admin menambah jadwal untuk KELAS APAPUN (berperan sebagai pengajar)
-window.openAdminAddJadwalModal = function() {
-    window.adminIsAddingJadwal = true;
-    const sel = document.getElementById('jadwalKelas');
-    sel.innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + renderKelasOptionsGrouped();
-    document.getElementById('jadwalJudul').value = '';
-    document.getElementById('jadwalRuangan').value = '';
-    document.getElementById('jadwalCatatan').value = '';
-    document.getElementById('jadwalModal').classList.add('show');
+async function loadAdminJadwalWeek() {
+    try {
+        const { data: allJadwalAdmin, error } = await window.sb
+            .from('jadwal')
+            .select('*')
+            .order('tanggal', { ascending: true });
+        if (error) throw error;
+        const el = document.getElementById('adm-jadwal-week');
+        if (el) el.innerHTML = renderWeekSchedule(allJadwalAdmin, weekOffsets.admin, 'admin', { canDelete: false });
+    } catch(e) {
+        toast('Gagal memuat jadwal: '+translateSupabaseError(e.message),'error');
+    }
 }
 
 function badgeRole(role) {
@@ -1920,68 +1638,24 @@ function badgeRole(role) {
 // ==============================
 // HELPER HTML RENDERERS
 // ==============================
-function jadwalItemHtml(j, canDelete=false, isSiswa=false, catatanList=[]) {
+function jadwalItemHtml(j, canDelete=false) {
     const { day, month } = formatDateShort(j.tanggal);
-
-    let catatanHtml = '';
-    if (isSiswa) {
-        const mine = catatanList.find(c => c.siswa_id === window.currentUser.id);
-        if (mine) {
-            catatanHtml = `
-            <div class="catatan-container">
-                <div class="catatan-label"><i class="fa-regular fa-note-sticky"></i> Catatan Anda</div>
-                <div class="catatan-text">${escapeHtml(mine.catatan)}</div>
-            </div>`;
-        }
-    } else if (canDelete) {
-        if (catatanList.length > 0) {
-            catatanHtml = `
-            <div class="catatan-container">
-                <div class="catatan-label"><i class="fa-regular fa-note-sticky"></i> Catatan Siswa (${catatanList.length})</div>
-                ${catatanList.map(c => `
-                    <div class="catatan-item">
-                        <div style="font-weight:600;font-size:0.8rem;color:#1d4ed8;">${escapeHtml(c.siswa_nama || 'Siswa')}</div>
-                        <div class="catatan-text">${escapeHtml(c.catatan)}</div>
-                    </div>
-                `).join('')}
-            </div>`;
-        }
-    }
-
-    let siswaBtnHtml = '';
-    if (isSiswa) {
-        const mine = catatanList.find(c => c.siswa_id === window.currentUser.id);
-        const judulEsc = (j.judul||'').replace(/'/g,"\\'");
-        const jamEsc = (j.jam||'').replace(/'/g,"\\'");
-        if (mine) {
-            const catatanEsc = (mine.catatan||'').replace(/'/g,"\\'").replace(/\n/g,'\\n');
-            siswaBtnHtml = `<button class="btn btn-yellow btn-sm" onclick="openSiswaCatatanModal('${j.id}', '${judulEsc}', '${j.tanggal||''}', '${jamEsc}', '${mine.id}', '${catatanEsc}')" style="background:var(--yellow);color:#000;"><i class="fa-solid fa-pen"></i> Edit Catatan</button>`;
-        } else {
-            siswaBtnHtml = `<button class="btn btn-yellow btn-sm" onclick="openSiswaCatatanModal('${j.id}', '${judulEsc}', '${j.tanggal||''}', '${jamEsc}')" style="background:var(--yellow);color:#000;"><i class="fa-solid fa-note-sticky"></i> Catatan</button>`;
-        }
-    }
-
     return `
     <div class="jadwal-item">
         <div class="jadwal-date"><div class="day">${day}</div><div class="month">${month}</div></div>
         <div class="jadwal-info">
-            <div class="jadwal-title">${escapeHtml(j.judul)||'Tanpa Judul'}</div>
+            <div class="jadwal-title">${j.judul||'Tanpa Judul'}</div>
             <div class="jadwal-meta">
-                <span><i class="fa-regular fa-clock"></i> ${escapeHtml(j.jam)||'—'}</span>
+                <span><i class="fa-regular fa-clock"></i> ${j.jam||'—'}</span>
                 <span>•</span>
-                <span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(j.ruangan)||'—'}</span>
+                <span><i class="fa-solid fa-location-dot"></i> ${j.ruangan||'—'}</span>
                 <span>•</span>
                 ${badgeKelas(j.kelas||'')}
             </div>
-            ${j.catatan ? `<div class="jadwal-meta" style="margin-top:0.3rem;"><i class="fa-regular fa-note-sticky"></i> ${escapeHtml(j.catatan)}</div>` : ''}
-            <div class="jadwal-meta" style="margin-top:0.25rem;">👤 ${escapeHtml(j.pengajar_nama)||'—'}</div>
-            ${catatanHtml}
+            ${j.catatan ? `<div class="jadwal-meta" style="margin-top:0.3rem;"><i class="fa-regular fa-note-sticky"></i> ${j.catatan}</div>` : ''}
+            <div class="jadwal-meta" style="margin-top:0.25rem;">👤 ${j.pengajar_nama||'—'}</div>
         </div>
-        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-            ${canDelete ? `<button class="btn btn-blue btn-sm" onclick="openAdminEditJadwal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${j.jam||''}', '${(j.ruangan||'').replace(/'/g,"\\'")}', '${(j.catatan||'').replace(/'/g,"\\'")}')"><i class="fa-solid fa-edit"></i> Edit</button>` : ''}
-            ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteAdminJadwal('${j.id}')"><i class="fa-solid fa-trash"></i> Hapus</button>` : ''}
-            ${siswaBtnHtml}
-        </div>
+        ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteJadwal('${j.id}')"><i class="fa-solid fa-trash"></i></button>` : ''}
     </div>`;
 }
 
@@ -1991,14 +1665,14 @@ function fileItemHtml(f, canDelete=false) {
     <div class="file-item">
         <div class="file-icon">${getFileIcon()}</div>
         <div class="file-info">
-            <div class="file-name">${escapeHtml(f.judul||f.file_name)||'Tanpa Judul'}</div>
+            <div class="file-name">${f.judul||f.file_name||'Tanpa Judul'}</div>
             <div class="file-meta">
-                ${f.mapel ? `<span>${escapeHtml(f.mapel)}</span><span>•</span>` : ''}
+                ${f.mapel ? `<span>${f.mapel}</span><span>•</span>` : ''}
                 ${badgeKelas(f.kelas||'')}
                 <span>•</span>
                 <span>${size}</span>
                 <span>•</span>
-                <span>👤 ${escapeHtml(f.pengajar_nama)||'—'}</span>
+                <span>👤 ${f.pengajar_nama||'—'}</span>
             </div>
         </div>
         <div class="file-actions">
@@ -2012,7 +1686,9 @@ function fileItemHtml(f, canDelete=false) {
 // INIT
 // ==============================
 window.onload = async function() {
+    // FIX: Pastikan window.sb sudah ada sebelum digunakan
     if (!window.sb) {
+        console.error('Supabase client belum siap!');
         document.getElementById('app').innerHTML = `<div style="text-align:center;padding:3rem;color:red;">Gagal menginisialisasi koneksi. Coba refresh halaman.</div>`;
         return;
     }
@@ -2020,18 +1696,15 @@ window.onload = async function() {
     const todayInput = document.getElementById('jadwalTanggal');
     if (todayInput) todayInput.value = new Date().toISOString().split('T')[0];
 
-    try {
-        const { data } = await window.sb.auth.getSession();
-        if (data.session) {
-            await loadProfileAndRoute();
-        } else {
-            showView('public');
-        }
-    } catch(e) {
-        console.error('Init error:', e);
+    // Cek sesi login yang masih aktif
+    const { data } = await window.sb.auth.getSession();
+    if (data.session) {
+        await loadProfileAndRoute();
+    } else {
         showView('public');
     }
 
+    // Dengarkan perubahan auth
     window.sb.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
             window.isLoggedIn = false;
