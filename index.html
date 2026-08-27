@@ -35,7 +35,7 @@
         a { text-decoration: none; color: inherit; }
 
         .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem; }
-        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; gap: 1rem; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap; }
         .page-title { font-size: 1.6rem; font-weight: 700; }
         .page-title span { color: var(--red); }
 
@@ -69,6 +69,11 @@
         .badge-blue { background: #dbeafe; color: #1d4ed8; }
         .badge-yellow { background: #fef3c7; color: #92400e; }
         .badge-muted { background: var(--border); color: var(--muted); }
+
+        /* Filter Status Bar */
+        .filter-status-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .filter-btn { padding: 0.45rem 1rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; border: 1px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer; transition: 0.2s; }
+        .filter-btn.active { background: var(--red); color: white; border-color: var(--red); }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 1rem; }
         .modal-overlay.show { display: flex; }
@@ -415,7 +420,6 @@ function escapeHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// FORMAT TANGGAL DITAMBAH NAMA HARI (SEN, SEL, RAB, DLL)
 function formatTanggalLengkap(dateStr) {
     if (!dateStr) return { dayName:'—', day:'—', month:'—' };
     const d = new Date(dateStr + 'T00:00:00');
@@ -471,6 +475,7 @@ function togglePassword(inputId, iconEl) {
 window.currentUser = null;
 let currentView = 'public';
 let currentWeekOffset = 0;
+let adminFilterStatus = 'all'; // State Filter Admin: 'all', 'pending', 'selesai'
 let chatSubscription = null;
 let editingSiswaId = null, editingJadwalId = null, selectedJadwalForCatatan = null, selectedCatatanId = null;
 let adminIsAddingJadwal = false;
@@ -618,7 +623,7 @@ function renderPublic() {
         <div class="hero">
             <div class="hero-logo"><span class="imc">IMC</span></div>
             <div style="font-weight:600;color:var(--muted);letter-spacing:0.08em;margin-bottom:0.75rem;">INDONESIA MIND CENTER</div>
-            <p class="hero-sub">Platform bimbingan belajar terpadu dengan Informasi Hari & Jam Selesai.</p>
+            <p class="hero-sub">Platform bimbingan belajar terpadu dengan Filter Status Jadwal Admin.</p>
             <div class="hero-btns">
                 <button class="btn btn-red" onclick="showAuth(); switchTab('login')">Masuk</button>
                 <button class="btn btn-green" onclick="showAuth(); switchTab('register')">Daftar</button>
@@ -641,7 +646,7 @@ async function loadCatatanMap(jadwalIds) {
 }
 
 // ==============================
-// RENDER JADWAL DENGAN HARI & JAM SELESAI
+// RENDER JADWAL
 // ==============================
 function jadwalItemHtml(j, roleType, catatanList=[]) {
     const { dayName, day, month } = formatTanggalLengkap(j.tanggal);
@@ -754,7 +759,7 @@ async function renderPengajarJadwal() {
 }
 
 // ==============================
-// ADMIN VIEWS & EXPORT EXCEL
+// ADMIN VIEWS & FILTER STATUS JADWAL
 // ==============================
 async function renderAdminDashboard() {
     document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title">Admin <span>Dashboard</span></div></div><div class="stats-grid" id="admin-stats"><div class="loading-spinner"></div></div></div>`;
@@ -766,18 +771,57 @@ async function renderAdminDashboard() {
         <div class="stat-card"><div class="stat-num">${jCount||0}</div><div class="stat-label">Total Jadwal</div></div>`;
 }
 
+window.setAdminFilterStatus = function(status) {
+    adminFilterStatus = status;
+    renderAdminJadwal();
+}
+
 async function renderAdminJadwal() {
     const range = getWeekRange(currentWeekOffset);
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title">Kelola <span>Jadwal</span></div><div style="display:flex; gap:0.5rem;"><button class="btn btn-green btn-sm" onclick="exportExcelJadwal()"><i class="fa-solid fa-file-excel"></i> Export Excel</button><button class="btn btn-red btn-sm" onclick="openAdminAddJadwalModal()"><i class="fa-solid fa-plus"></i> Tambah</button></div></div>${renderWeekControls()}<div class="card"><div id="admin-jadwal-list"><div class="loading-spinner"></div></div></div></div>`;
-    const { data } = await window.sb.from('jadwal').select('*').gte('tanggal', range.start).lte('tanggal', range.end).order('tanggal');
-    const cMap = await loadCatatanMap(data.map(j=>j.id));
-    document.getElementById('admin-jadwal-list').innerHTML = data.length ? data.map(j => jadwalItemHtml(j, 'admin', cMap[j.id]||[])).join('') : `<div class="empty-state">Tidak ada jadwal di minggu ini.</div>`;
+    document.getElementById('app').innerHTML = `
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">Kelola <span>Jadwal</span></div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-green btn-sm" onclick="exportExcelJadwal()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                <button class="btn btn-red btn-sm" onclick="openAdminAddJadwalModal()"><i class="fa-solid fa-plus"></i> Tambah</button>
+            </div>
+        </div>
+        ${renderWeekControls()}
+        
+        <!-- FITUR BARU: Filter Status Pembagi (Semua / Belum Selesai / Selesai) -->
+        <div class="filter-status-bar">
+            <button class="filter-btn ${adminFilterStatus === 'all' ? 'active' : ''}" onclick="setAdminFilterStatus('all')">Semua Status</button>
+            <button class="filter-btn ${adminFilterStatus === 'pending' ? 'active' : ''}" onclick="setAdminFilterStatus('pending')">Belum Selesai (Pending)</button>
+            <button class="filter-btn ${adminFilterStatus === 'selesai' ? 'active' : ''}" onclick="setAdminFilterStatus('selesai')">Sudah Selesai</button>
+        </div>
+
+        <div class="card"><div id="admin-jadwal-list"><div class="loading-spinner"></div></div></div>
+    </div>`;
+
+    let query = window.sb.from('jadwal').select('*').gte('tanggal', range.start).lte('tanggal', range.end);
+    
+    // Terapkan filter berdasarkan status
+    if (adminFilterStatus === 'pending') {
+        query = query.or('status.eq.pending,status.is.null');
+    } else if (adminFilterStatus === 'selesai') {
+        query = query.eq('status', 'selesai');
+    }
+
+    const { data } = await query.order('tanggal');
+    const cMap = await loadCatatanMap((data || []).map(j=>j.id));
+    
+    document.getElementById('admin-jadwal-list').innerHTML = (data && data.length) ? data.map(j => jadwalItemHtml(j, 'admin', cMap[j.id]||[])).join('') : `<div class="empty-state">Tidak ada jadwal dengan status ini di minggu ini.</div>`;
 }
 
 window.exportExcelJadwal = async function() {
     const range = getWeekRange(currentWeekOffset);
-    const { data } = await window.sb.from('jadwal').select('*').gte('tanggal', range.start).lte('tanggal', range.end).order('tanggal');
-    if (!data || data.length === 0) return toast('Tidak ada data jadwal.', 'error');
+    let query = window.sb.from('jadwal').select('*').gte('tanggal', range.start).lte('tanggal', range.end);
+    if (adminFilterStatus === 'pending') query = query.or('status.eq.pending,status.is.null');
+    else if (adminFilterStatus === 'selesai') query = query.eq('status', 'selesai');
+
+    const { data } = await query.order('tanggal');
+    if (!data || data.length === 0) return toast('Tidak ada data jadwal untuk diekspor.', 'error');
     
     const wsData = data.map(j => ({
         'Mata Pelajaran': j.judul, 'Tanggal': j.tanggal,
@@ -788,7 +832,7 @@ window.exportExcelJadwal = async function() {
     const ws = XLSX.utils.json_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Rekap Jadwal");
-    XLSX.writeFile(wb, `Rekap_Jadwal_${range.start}.xlsx`);
+    XLSX.writeFile(wb, `Rekap_Jadwal_${adminFilterStatus}_${range.start}.xlsx`);
     toast('Excel diunduh!');
 }
 
