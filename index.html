@@ -26,156 +26,317 @@
     <style>
         :root {
             --red: #E63946; --red-dark: #C1121F; --green: #10B981; --green-dark: #059669;
-            --blue: #3B82F6; --yellow: #F59E0B; --bg: #f0f4f8; --card: #ffffff;
-            --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --shadow: 0 4px 24px rgba(0,0,0,0.07);
-            --shadow-lg: 0 20px 60px rgba(0,0,0,0.13); --radius: 20px; --radius-sm: 12px;
+            --blue: #3B82F6; --yellow: #F59E0B; 
+            
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-bg-solid: #ffffff;
+            --glass-border: rgba(255, 255, 255, 0.6);
+            
+            --text: #1e293b; --muted: #64748b; 
+            --border: rgba(226, 232, 240, 0.7); 
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+            --shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.12);
+            --shadow-lg: 0 20px 60px rgba(0,0,0,0.15); 
+            
+            --radius: 24px; --radius-sm: 14px;
         }
+
         [data-theme="dark"] {
-            --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8;
-            --border: #334155; --shadow: 0 4px 24px rgba(0,0,0,0.3);
+            --card-bg: rgba(30, 41, 59, 0.65);
+            --card-bg-solid: #1e293b;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            
+            --text: #f8fafc; --muted: #94a3b8;
+            --border: rgba(51, 65, 85, 0.6); 
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
+
+        /* Animated Background with Red and Green at 50% Transparency */
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -999;
+            background: linear-gradient(135deg, rgba(230, 57, 70, 0.5), rgba(16, 185, 129, 0.5), rgba(59, 130, 246, 0.3), rgba(245, 158, 11, 0.3));
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        [data-theme="dark"] .animated-bg {
+            background: linear-gradient(135deg, rgba(193, 18, 31, 0.5), rgba(5, 150, 105, 0.5), rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 100px; min-height: 100vh; overflow-x: hidden; }
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            color: var(--text); 
+            padding-bottom: 100px; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+            transition: color 0.4s ease;
+        }
+        
         a { text-decoration: none; color: inherit; }
+
+        #initial-loader {
+            position: fixed; inset: 0; background: var(--card-bg-solid); z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #initial-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
         .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem; }
         .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap; }
-        .page-title { font-size: 1.6rem; font-weight: 700; }
+        .page-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; }
         .page-title span { color: var(--red); }
 
-        .card { background: var(--card); border-radius: var(--radius); padding: 1.75rem; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 1.25rem; }
-        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
-        .card-meta { font-size: 0.82rem; color: var(--muted); }
+        .card { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: var(--radius); 
+            padding: 2rem; 
+            box-shadow: var(--shadow); 
+            border: 1px solid var(--glass-border); 
+            margin-bottom: 1.5rem; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+        .card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+        .card-meta { font-size: 0.85rem; color: var(--muted); }
 
-        .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1.5rem; border-radius: 9999px; font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; font-family: 'Outfit', sans-serif; transition: transform 0.15s, opacity 0.15s; }
-        .btn:active { transform: scale(0.97); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-red { background: var(--red); color: #fff; } .btn-red:hover { background: var(--red-dark); }
-        .btn-green { background: var(--green); color: #fff; } .btn-green:hover { background: var(--green-dark); }
-        .btn-blue { background: var(--blue); color: #fff; } .btn-yellow { background: var(--yellow); color: #000; }
-        .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
-        .btn-sm { padding: 0.45rem 1rem; font-size: 0.8rem; }
-        .btn-danger { background: #fee2e2; color: var(--red-dark); }
+        .btn { 
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; 
+            padding: 0.75rem 1.75rem; border-radius: 9999px; font-weight: 600; font-size: 0.95rem; 
+            cursor: pointer; border: none; font-family: 'Outfit', sans-serif; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+        .btn:active { transform: translateY(0) scale(0.97); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .btn-red { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: #fff; box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3); } 
+        .btn-green { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); } 
+        .btn-blue { background: linear-gradient(135deg, #60A5FA, var(--blue)); color: #fff; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);} 
+        .btn-yellow { background: linear-gradient(135deg, #FCD34D, var(--yellow)); color: #000; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);}
+        
+        .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); box-shadow: none; }
+        .btn-outline:hover { border-color: var(--text); }
+        .btn-sm { padding: 0.5rem 1.25rem; font-size: 0.85rem; }
+        .btn-danger { background: #fee2e2; color: var(--red-dark); box-shadow: none; }
+        .btn-danger:hover { background: #fca5a5; }
         .btn-full { width: 100%; justify-content: center; }
 
-        .form-group { margin-bottom: 1.1rem; position: relative; }
-        .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em; }
-        .form-control, .form-select { width: 100%; padding: 0.9rem 1.1rem; border: 2px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 0.95rem; }
-        .form-control:focus, .form-select:focus { outline: none; border-color: var(--red); }
-        textarea.form-control { resize: vertical; min-height: 100px; }
+        .form-group { margin-bottom: 1.25rem; position: relative; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-control, .form-select { 
+            width: 100%; padding: 0.95rem 1.25rem; 
+            border: 2px solid var(--border); border-radius: var(--radius-sm); 
+            background: rgba(255,255,255,0.4); color: var(--text); 
+            font-family: 'Outfit', sans-serif; font-size: 0.95rem; 
+            transition: all 0.3s ease; backdrop-filter: blur(4px);
+        }
+        [data-theme="dark"] .form-control, [data-theme="dark"] .form-select { background: rgba(0,0,0,0.2); }
+        .form-control:focus, .form-select:focus { outline: none; border-color: var(--red); background: var(--card-bg-solid); box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1); }
+        textarea.form-control { resize: vertical; min-height: 110px; }
         
-        .toggle-password { position: absolute; right: 1rem; top: 2.3rem; cursor: pointer; color: var(--muted); font-size: 1.1rem; }
+        .toggle-password { position: absolute; right: 1.25rem; top: 2.6rem; cursor: pointer; color: var(--muted); font-size: 1.1rem; transition: color 0.2s; }
         .toggle-password:hover { color: var(--text); }
 
-        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; }
-        .badge-red { background: #fee2e2; color: var(--red-dark); }
-        .badge-green { background: #d1fae5; color: #065f46; }
-        .badge-blue { background: #dbeafe; color: #1d4ed8; }
-        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; }
+        .badge-red { background: rgba(254, 226, 226, 0.8); color: var(--red-dark); border: 1px solid #fca5a5; }
+        .badge-green { background: rgba(209, 250, 229, 0.8); color: #065f46; border: 1px solid #6ee7b7; }
+        .badge-blue { background: rgba(219, 234, 254, 0.8); color: #1d4ed8; border: 1px solid #93c5fd; }
+        .badge-yellow { background: rgba(254, 243, 199, 0.8); color: #92400e; border: 1px solid #fcd34d; }
         .badge-muted { background: var(--border); color: var(--muted); }
+        [data-theme="dark"] .badge-red { background: rgba(127, 29, 29, 0.3); border-color: rgba(248, 113, 113, 0.3); color: #fca5a5; }
+        [data-theme="dark"] .badge-green { background: rgba(6, 78, 59, 0.3); border-color: rgba(52, 211, 153, 0.3); color: #6ee7b7; }
+        [data-theme="dark"] .badge-blue { background: rgba(30, 58, 138, 0.3); border-color: rgba(96, 165, 250, 0.3); color: #93c5fd; }
+        [data-theme="dark"] .badge-yellow { background: rgba(120, 53, 15, 0.3); border-color: rgba(251, 191, 36, 0.3); color: #fcd34d; }
 
-        .filter-status-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-        .filter-btn { padding: 0.45rem 1rem; border-radius: 9999px; font-size: 0.82rem; font-weight: 600; border: 1px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer; transition: 0.2s; }
-        .filter-btn.active { background: var(--red); color: white; border-color: var(--red); }
+        .filter-status-bar { display: flex; gap: 0.6rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+        .filter-btn { padding: 0.55rem 1.25rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; border: 1px solid var(--border); background: var(--card-bg); color: var(--muted); cursor: pointer; transition: all 0.2s; backdrop-filter: blur(8px); }
+        .filter-btn:hover { border-color: var(--text); color: var(--text); }
+        .filter-btn.active { background: linear-gradient(135deg, var(--red), var(--red-dark)); color: white; border-color: transparent; box-shadow: 0 4px 12px rgba(230,57,70,0.3); }
+        
+        .filter-select { padding: 0.5rem 1.25rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); cursor: pointer; outline: none; font-family: 'Outfit', sans-serif; min-height: 38px; backdrop-filter: blur(8px); }
+        .filter-select:focus { border-color: var(--red); }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 1rem; }
-        .modal-overlay.show { display: flex; }
-        .modal-box { background: var(--card); padding: 2.5rem; border-radius: 28px; width: 100%; max-width: 460px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
-        .modal-icon { width: 64px; height: 64px; object-fit: contain; margin-bottom: 1rem; }
-        .modal-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.3rem; }
-        .modal-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
-        .modal-tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
-        .modal-tab { flex: 1; padding: 0.65rem; border-radius: var(--radius-sm); border: 2px solid var(--border); font-weight: 600; font-size: 0.88rem; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.2s; }
-        .modal-tab.active { background: var(--red); border-color: var(--red); color: white; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 1rem; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-box { 
+            background: var(--card-bg-solid); 
+            padding: 2.5rem; border-radius: 28px; width: 100%; max-width: 480px; 
+            box-shadow: var(--shadow-lg); border: 1px solid var(--glass-border); 
+            max-height: 90vh; overflow-y: auto; 
+            transform: translateY(20px) scale(0.95); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.show .modal-box { transform: translateY(0) scale(1); opacity: 1; }
+        .modal-icon { width: 72px; height: 72px; object-fit: contain; margin-bottom: 1.25rem; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem; letter-spacing: -0.01em; }
+        .modal-sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+        
+        .modal-tabs { display: flex; background: var(--border); border-radius: 9999px; padding: 0.3rem; margin-bottom: 2rem; }
+        .modal-tab { flex: 1; padding: 0.65rem; border-radius: 9999px; border: none; font-weight: 700; font-size: 0.9rem; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.3s ease; }
+        .modal-tab.active { background: var(--card-bg-solid); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
-        .hero { text-align: center; padding: 4rem 1.5rem 3rem; background: linear-gradient(135deg, #fff 0%, #fff8f8 100%); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); margin-bottom: 2rem; overflow: hidden; }
-        [data-theme="dark"] .hero { background: linear-gradient(135deg, #1e293b, #16213e); }
-        .hero-logo { width: 90px; height: 90px; object-fit: contain; margin-bottom: 1rem; }
-        .hero-sub { font-size: 1rem; color: var(--muted); margin-bottom: 2rem; max-width: 420px; margin-left: auto; margin-right: auto; }
+        .hero { 
+            text-align: center; padding: 5rem 2rem 4rem; 
+            background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px; border: 1px solid var(--glass-border); 
+            box-shadow: var(--shadow); margin-bottom: 2rem; overflow: hidden; position: relative;
+        }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(230,57,70,0.05) 0%, transparent 60%);
+            z-index: -1; pointer-events: none;
+        }
+        .hero-logo { width: 100px; height: 100px; object-fit: contain; margin-bottom: 1.5rem; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.1)); transition: transform 0.3s; }
+        .hero-logo:hover { transform: scale(1.05) rotate(-5deg); }
+        .hero-sub { font-size: 1.1rem; color: var(--muted); margin-bottom: 2.5rem; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6; }
         .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-card { background: var(--card); border-radius: var(--radius); padding: 1.25rem; border: 1px solid var(--border); text-align: center; box-shadow: var(--shadow); }
-        .stat-num { font-size: 1.8rem; font-weight: 800; }
-        .stat-label { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-top: 0.2rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1.25rem; margin-bottom: 1.75rem; }
+        .stat-card { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: var(--radius); padding: 1.5rem; border: 1px solid var(--glass-border); text-align: center; box-shadow: var(--shadow); transition: transform 0.3s; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-num { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--text), var(--muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 0.85rem; color: var(--muted); font-weight: 700; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .jadwal-item { display: flex; gap: 1rem; align-items: flex-start; padding: 1.1rem 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
-        .jadwal-item:last-child { border-bottom: none; }
-        .jadwal-date { min-width: 58px; text-align: center; background: #fee2e2; border-radius: var(--radius-sm); padding: 0.5rem 0.2rem; color: var(--red-dark); font-weight: 700; }
-        .jadwal-date .day-name { font-size: 0.68rem; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 0.1rem; }
-        .jadwal-date .day { font-size: 1.4rem; line-height: 1; }
-        .jadwal-date .month { font-size: 0.68rem; text-transform: uppercase; }
-        .jadwal-info { flex: 1; min-width: 160px; }
-        .jadwal-title { font-weight: 700; margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-        .jadwal-meta { font-size: 0.82rem; color: var(--muted); display:flex; flex-wrap:wrap; align-items:center; gap: 0.3rem; margin-top: 0.2rem; }
+        .jadwal-item { display: flex; gap: 1.25rem; align-items: flex-start; padding: 1.5rem 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; transition: background 0.3s; border-radius: var(--radius-sm); }
+        .jadwal-item:hover { background: rgba(0,0,0,0.02); }
+        [data-theme="dark"] .jadwal-item:hover { background: rgba(255,255,255,0.02); }
+        .jadwal-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .jadwal-item:first-child { padding-top: 0; }
+        
+        .jadwal-date { min-width: 65px; text-align: center; background: linear-gradient(135deg, #fee2e2, #fecaca); border-radius: var(--radius-sm); padding: 0.6rem 0.2rem; color: var(--red-dark); font-weight: 700; box-shadow: 0 4px 10px rgba(254, 226, 226, 0.5); border: 1px solid #fca5a5; }
+        [data-theme="dark"] .jadwal-date { background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(153, 27, 27, 0.4)); color: #fca5a5; border-color: rgba(248, 113, 113, 0.2); box-shadow: none; }
+        .jadwal-date .day-name { font-size: 0.7rem; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 0.2rem; letter-spacing: 0.05em; }
+        .jadwal-date .day { font-size: 1.6rem; line-height: 1; margin-bottom: 0.1rem; }
+        .jadwal-date .month { font-size: 0.75rem; text-transform: uppercase; }
+        
+        .jadwal-info { flex: 1; min-width: 200px; }
+        .jadwal-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+        .jadwal-meta { font-size: 0.85rem; color: var(--muted); display:flex; flex-wrap:wrap; align-items:center; gap: 0.5rem; margin-top: 0.3rem; }
+        .jadwal-meta i { opacity: 0.7; }
 
-        .week-controls { display: flex; align-items: center; justify-content: space-between; background: var(--card); padding: 1rem; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 1.25rem; font-weight: 700; box-shadow: var(--shadow); }
-        .week-controls button { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer; color: var(--text); font-family: 'Outfit'; transition: 0.2s; }
-        .week-controls button:hover { background: var(--red); color: #fff; border-color: var(--red); }
-        .week-label { font-size: 0.9rem; letter-spacing: 0.02em; }
+        .week-controls { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); backdrop-filter: blur(12px); padding: 0.75rem 1rem; border-radius: 9999px; border: 1px solid var(--glass-border); margin-bottom: 1.5rem; font-weight: 700; box-shadow: var(--shadow); }
+        .week-controls button { background: transparent; border: none; border-radius: 9999px; padding: 0.6rem 1.2rem; cursor: pointer; color: var(--text); font-family: 'Outfit'; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .week-controls button:hover { background: var(--border); }
+        .week-label { font-size: 0.95rem; letter-spacing: 0.02em; padding: 0 1rem; }
 
-        .chat-container { display: flex; flex-direction: column; height: 60vh; background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-        .chat-bubble { max-width: 80%; padding: 0.8rem 1rem; border-radius: 16px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
-        .chat-bubble.me { align-self: flex-end; background: var(--blue); color: white; border-bottom-right-radius: 4px; }
-        .chat-bubble.other { align-self: flex-start; background: var(--bg); color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
-        .chat-sender { font-size: 0.75rem; font-weight: 700; margin-bottom: 0.3rem; opacity: 0.8; display: flex; justify-content: space-between; gap: 1rem; }
-        .chat-time { font-size: 0.65rem; opacity: 0.7; }
-        .chat-input-area { padding: 1rem; background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 0.5rem; }
+        .chat-container { display: flex; flex-direction: column; height: 65vh; background: var(--card-bg-solid); border-radius: var(--radius); border: 1px solid var(--glass-border); overflow: hidden; box-shadow: var(--shadow); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; background: rgba(0,0,0,0.02); }
+        [data-theme="dark"] .chat-messages { background: rgba(255,255,255,0.01); }
+        .chat-bubble { max-width: 75%; padding: 0.9rem 1.15rem; border-radius: 18px; font-size: 0.95rem; line-height: 1.5; position: relative; word-wrap: break-word; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .chat-bubble.me { align-self: flex-end; background: linear-gradient(135deg, #3B82F6, #2563EB); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .chat-bubble.other { align-self: flex-start; background: var(--card-bg-solid); color: var(--text); border-bottom-left-radius: 4px; border: 1px solid var(--border); }
+        .chat-sender { font-size: 0.75rem; font-weight: 700; margin-bottom: 0.4rem; opacity: 0.85; display: flex; justify-content: space-between; gap: 1rem; }
+        .chat-time { font-size: 0.65rem; opacity: 0.7; font-weight: 600; }
+        .chat-input-area { padding: 1rem; background: var(--card-bg-solid); border-top: 1px solid var(--border); display: flex; gap: 0.75rem; align-items: center; }
+        .chat-input-area .form-control { border-radius: 9999px; padding-left: 1.5rem; background: rgba(0,0,0,0.02); border-color: transparent; }
+        .chat-input-area .btn { border-radius: 50%; width: 46px; height: 46px; padding: 0; flex-shrink: 0; }
 
-        .file-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); margin-bottom: 0.75rem; transition: box-shadow 0.2s; flex-wrap: wrap; }
-        .file-icon { font-size: 1.8rem; width: 40px; text-align: center; }
+        .file-item { display: flex; align-items: center; gap: 1.25rem; padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card-bg-solid); margin-bottom: 0.75rem; transition: all 0.3s; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .file-item:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--blue); }
+        .file-icon { font-size: 2rem; width: 48px; height: 48px; background: rgba(59, 130, 246, 0.1); color: var(--blue); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        [data-theme="dark"] .file-icon { background: rgba(96, 165, 250, 0.15); color: #93c5fd; }
         .file-info { flex: 1; min-width: 160px; }
-        .file-name { font-weight: 600; font-size: 0.95rem; }
-        .file-meta { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; display:flex; flex-wrap:wrap; align-items:center; gap:0.3rem; }
+        .file-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+        .file-meta { font-size: 0.8rem; color: var(--muted); display:flex; flex-wrap:wrap; align-items:center; gap:0.4rem; }
         .file-actions { display: flex; gap: 0.5rem; }
 
-        #bottom-ribbon { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; background: var(--card); border-top: 1px solid var(--border); box-shadow: 0 -8px 32px rgba(0,0,0,0.08); transition: transform 0.35s, opacity 0.35s; }
+        #bottom-ribbon { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); box-shadow: 0 -8px 32px rgba(0,0,0,0.05); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s; }
         #bottom-ribbon.hidden { transform: translateY(100%); opacity: 0; pointer-events: none; }
-        .ribbon-inner { display: flex; justify-content: space-around; align-items: center; padding: 0.6rem 0.5rem; max-width: 700px; margin: 0 auto; }
-        .ribbon-btn { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; border-radius: var(--radius-sm); border: none; background: transparent; color: var(--muted); cursor: pointer; font-family: 'Outfit'; font-size: 0.7rem; font-weight: 600; min-width: 60px; }
-        .ribbon-btn i { font-size: 1.2rem; }
-        .ribbon-btn.active, .ribbon-btn:hover { color: var(--red); background: #fee2e2; }
+        .ribbon-inner { display: flex; justify-content: space-around; align-items: center; padding: 0.5rem 0.5rem 1.5rem; max-width: 700px; margin: 0 auto; }
+        .ribbon-btn { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.6rem 1rem; border-radius: 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-family: 'Outfit'; font-size: 0.75rem; font-weight: 700; min-width: 65px; transition: all 0.3s; }
+        .ribbon-btn i { font-size: 1.25rem; transition: transform 0.3s; }
+        .ribbon-btn.active, .ribbon-btn:hover { color: var(--red); }
+        .ribbon-btn.active i { transform: translateY(-2px); }
+        .ribbon-btn.active::after { content: ''; display: block; width: 5px; height: 5px; background: var(--red); border-radius: 50%; margin-top: 2px; }
 
-        .top-bar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .top-logo-wrap { display: flex; align-items: center; gap: 0.6rem; font-weight: 800; font-size: 1.1rem; }
-        .top-logo-img { width: 32px; height: 32px; object-fit: contain; }
-        .top-right { display: flex; align-items: center; gap: 0.75rem; }
-        .user-chip { display: flex; align-items: center; gap: 0.5rem; background: var(--bg); border-radius: 9999px; padding: 0.4rem 0.9rem; font-size: 0.82rem; font-weight: 600; border: 1px solid var(--border); cursor: pointer; }
-        .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--red); color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; }
-        .theme-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 9999px; padding: 0.45rem 0.85rem; cursor: pointer; font-size: 0.9rem; color: var(--text); }
+        .top-bar { background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+        .top-logo-wrap { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em; }
+        .top-logo-img { width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .top-right { display: flex; align-items: center; gap: 1rem; }
+        
+        .user-chip { display: flex; align-items: center; gap: 0.6rem; background: var(--card-bg-solid); border-radius: 9999px; padding: 0.4rem 1rem 0.4rem 0.4rem; font-size: 0.85rem; font-weight: 700; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .user-chip:hover { border-color: var(--muted); }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--red), var(--red-dark)); color: white; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(230,57,70,0.3); }
+        
+        .theme-btn { background: var(--card-bg-solid); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; display:flex; align-items:center; justify-content:center; cursor: pointer; font-size: 1.1rem; color: var(--text); transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .theme-btn:hover { background: var(--border); transform: rotate(15deg); }
 
         .user-menu { position: relative; }
-        .user-menu-dropdown { display: none; position: absolute; top: 100%; right: 0; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); min-width: 160px; z-index: 500; margin-top: 0.5rem; }
+        .user-menu-dropdown { display: none; position: absolute; top: 110%; right: 0; background: var(--card-bg-solid); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); min-width: 180px; z-index: 500; overflow: hidden; animation: scaleIn 0.2s ease-out; }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .user-menu-dropdown.show { display: block; }
-        .user-menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: none; background: transparent; color: var(--text); cursor: pointer; font-family: 'Outfit'; font-size: 0.9rem; width: 100%; text-align: left; border-bottom: 1px solid var(--border); }
-        .user-menu-item:last-child { border-bottom: none; }
-        .user-menu-item:hover { background: var(--bg); }
+        .user-menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1.25rem; border: none; background: transparent; color: var(--text); cursor: pointer; font-family: 'Outfit'; font-weight: 600; font-size: 0.9rem; width: 100%; text-align: left; transition: background 0.2s; }
+        .user-menu-item:not(:last-child) { border-bottom: 1px solid var(--border); }
+        .user-menu-item:hover { background: rgba(0,0,0,0.03); }
+        [data-theme="dark"] .user-menu-item:hover { background: rgba(255,255,255,0.03); }
         .user-menu-item.danger { color: var(--red); }
+        .user-menu-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
 
-        #toast-container { position: fixed; top: 1.25rem; right: 1.25rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
-        .toast { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem 1.25rem; box-shadow: var(--shadow-lg); font-size: 0.9rem; font-weight: 500; max-width: 320px; display: flex; align-items: center; gap: 0.75rem; animation: slideIn 0.3s ease; border-left: 4px solid var(--green); }
+        #toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.75rem; }
+        .toast { background: var(--card-bg-solid); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; box-shadow: var(--shadow-lg); font-size: 0.95rem; font-weight: 600; max-width: 350px; display: flex; align-items: center; gap: 0.85rem; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-left: 5px solid var(--green); }
         .toast.error { border-left-color: var(--red); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast i { font-size: 1.2rem; }
+        .toast i.fa-circle-check { color: var(--green); }
+        .toast.error i { color: var(--red); }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--muted); }
-        .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
-        .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2.5px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin 0.7s linear infinite; }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); background: rgba(0,0,0,0.01); border-radius: var(--radius-sm); border: 1px dashed var(--border); }
+        [data-theme="dark"] .empty-state { background: rgba(255,255,255,0.01); }
+        .empty-state i { font-size: 3.5rem; margin-bottom: 1.25rem; opacity: 0.3; }
+        .empty-state p { font-size: 1.05rem; font-weight: 500; }
+        
+        .loading-spinner { display: inline-block; width: 22px; height: 22px; border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--red); border-radius: 50%; animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        [data-theme="dark"] .loading-spinner { border-color: rgba(255,255,255,0.1); border-top-color: var(--red); }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .checkbox-kelas-wrap { border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 0.9rem; max-height: 260px; overflow-y: auto; }
-        .checkbox-kelas-cat { font-size: 0.72rem; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 0.05em; margin: 0.75rem 0 0.4rem; }
-        .checkbox-kelas-item { display:flex; align-items:center; gap:0.5rem; font-size:0.86rem; padding: 0.3rem 0; }
+        .checkbox-kelas-wrap { border: 2px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; max-height: 280px; overflow-y: auto; background: rgba(0,0,0,0.01); }
+        [data-theme="dark"] .checkbox-kelas-wrap { background: rgba(255,255,255,0.02); }
+        .checkbox-kelas-cat { font-size: 0.75rem; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 0.05em; margin: 1rem 0 0.5rem; }
+        .checkbox-kelas-cat:first-child { margin-top: 0; }
+        .checkbox-kelas-item { display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; padding: 0.4rem 0; cursor: pointer; transition: color 0.2s; }
+        .checkbox-kelas-item:hover { color: var(--blue); }
+        .checkbox-kelas-item input { width: 16px; height: 16px; accent-color: var(--red); cursor: pointer; }
 
-        .catatan-container { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 0.75rem; margin-top: 0.6rem; font-size: 0.82rem; width: 100%; }
-        [data-theme="dark"] .catatan-container { background: rgba(30, 58, 138, 0.3); }
-        .catatan-label { font-weight: 600; color: #1d4ed8; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem; }
-        .catatan-text { color: #1e293b; line-height: 1.4; word-break: break-word; }
-        [data-theme="dark"] .catatan-text { color: #f1f5f9; }
-        .catatan-item + .catatan-item { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #bfdbfe; }
+        .catatan-container { background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: var(--radius-sm); padding: 1rem; margin-top: 0.85rem; font-size: 0.9rem; width: 100%; transition: all 0.3s; }
+        .catatan-container:hover { background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.3); }
+        [data-theme="dark"] .catatan-container { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); }
+        .catatan-label { font-weight: 800; color: #2563eb; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.02em; }
+        [data-theme="dark"] .catatan-label { color: #60a5fa; }
+        .catatan-text { color: var(--text); line-height: 1.5; word-break: break-word; }
+        .catatan-item + .catatan-item { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed rgba(59, 130, 246, 0.3); }
     </style>
 </head>
 <body>
+
+<!-- ANIMATED BACKGROUND ELEMENT -->
+<div class="animated-bg"></div>
+
+<!-- INITIAL LOADING SCREEN -->
+<div id="initial-loader">
+    <img src="https://github.com/Defdava/Modul1Prakppb/blob/main/logo-website.png?raw=true" alt="IMC Logo" style="width: 80px; height: 80px; object-fit: contain; animation: pulse 1.5s infinite;">
+    <div style="font-weight: 800; font-size: 1.2rem; letter-spacing: 0.05em;">INDONESIA MIND CENTER</div>
+    <div class="loading-spinner" style="margin-top: 0.5rem;"></div>
+</div>
 
 <div id="toast-container"></div>
 
@@ -186,12 +347,12 @@
         <span>IMC Portal</span>
     </div>
     <div class="top-right">
-        <button class="theme-btn" onclick="toggleTheme()"><i class="fa-regular fa-moon"></i></button>
+        <button class="theme-btn" onclick="toggleTheme()" title="Ubah Tema"><i class="fa-solid fa-moon"></i></button>
         <div class="user-menu">
             <button class="user-chip" onclick="toggleUserMenu()">
                 <div class="avatar" id="user-avatar">?</div>
                 <span id="user-name-chip">—</span>
-                <i class="fa-solid fa-chevron-down" style="font-size:0.7rem;"></i>
+                <i class="fa-solid fa-chevron-down" style="font-size:0.75rem; margin-left:2px;"></i>
             </button>
             <div id="userMenuDropdown" class="user-menu-dropdown">
                 <button class="user-menu-item" onclick="openEditProfile()"><i class="fa-solid fa-user-pen"></i> Edit Profile</button>
@@ -214,7 +375,7 @@
     <div class="modal-box">
         <img src="https://github.com/Defdava/Modul1Prakppb/blob/main/logo-website.png?raw=true" alt="IMC Logo" class="modal-icon">
         <div class="modal-title">Indonesia Mind Center</div>
-        <div class="modal-sub">Portal Bimbel Eksklusif</div>
+        <div class="modal-sub">Portal Bimbel Eksklusif & Terpadu</div>
         <div class="modal-tabs">
             <button class="modal-tab active" id="tab-login" onclick="switchTab('login')">Masuk</button>
             <button class="modal-tab" id="tab-register" onclick="switchTab('register')">Daftar</button>
@@ -233,22 +394,22 @@
             <div class="form-group">
                 <label class="form-label">Peran</label>
                 <select id="loginRole" class="form-select">
-                    <option value="" disabled selected>Pilih Peran</option>
+                    <option value="" disabled selected>Pilih Peran Anda</option>
                     <option value="siswa">Siswa</option>
                     <option value="pengajar">Pengajar</option>
                     <option value="admin">Admin</option>
                 </select>
             </div>
-            <div style="display:flex; gap:0.75rem; margin-top:1.25rem;">
+            <div style="display:flex; gap:1rem; margin-top:1.75rem;">
                 <button class="btn btn-outline" onclick="closeAuth()" style="flex:1;">Batal</button>
-                <button class="btn btn-red btn-full" onclick="processLogin()" style="flex:2;" id="btn-login">Masuk</button>
+                <button class="btn btn-red btn-full" onclick="processLogin()" style="flex:2;" id="btn-login">Masuk Sekarang</button>
             </div>
         </div>
 
         <div id="form-register" style="display:none;">
             <div class="form-group">
                 <label class="form-label">Nama Lengkap</label>
-                <input type="text" id="regName" class="form-control" placeholder="Nama Anda">
+                <input type="text" id="regName" class="form-control" placeholder="Masukkan nama Anda">
             </div>
             <div class="form-group">
                 <label class="form-label">Email</label>
@@ -262,7 +423,7 @@
             <div class="form-group">
                 <label class="form-label">Peran</label>
                 <select id="regRole" class="form-select" onchange="onRegRoleChange()">
-                    <option value="" disabled selected>Pilih Peran</option>
+                    <option value="" disabled selected>Pilih Peran Pendaftaran</option>
                     <option value="siswa">Siswa</option>
                     <option value="pengajar">Pengajar</option>
                 </select>
@@ -271,85 +432,83 @@
                 <label class="form-label">Pilih Kelas (Bisa lebih dari satu)</label>
                 <div id="regClassCheckboxes" class="checkbox-kelas-wrap"></div>
             </div>
-            <div style="display:flex; gap:0.75rem; margin-top:1.25rem;">
+            <div style="display:flex; gap:1rem; margin-top:1.75rem;">
                 <button class="btn btn-outline" onclick="closeAuth()" style="flex:1;">Batal</button>
-                <button class="btn btn-green btn-full" onclick="processRegister()" style="flex:2;" id="btn-register">Daftar</button>
+                <button class="btn btn-green btn-full" onclick="processRegister()" style="flex:2;" id="btn-register">Daftar Akun</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MODALS -->
+<!-- MODALS LAINNYA -->
 <div id="editProfileModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-user-pen" style="color:var(--red);margin-right:0.5rem;"></i> Edit Profile</div>
+        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-user-pen" style="color:var(--red);margin-right:0.75rem;"></i> Edit Profile</div>
         <div class="form-group"><label class="form-label">Nama Lengkap</label><input type="text" id="editNama" class="form-control"></div>
         <div class="form-group" id="editKelasWrap" style="display:none;"><label class="form-label">Kelas</label><div id="editClassCheckboxes" class="checkbox-kelas-wrap"></div></div>
-        <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
+        <div style="display:flex; gap:1rem; margin-top:2rem;">
             <button class="btn btn-outline" onclick="closeModal('editProfileModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-red" onclick="submitEditProfile()" style="flex:2;" id="btn-edit-profile">Simpan</button>
+            <button class="btn btn-red" onclick="submitEditProfile()" style="flex:2;" id="btn-edit-profile">Simpan Perubahan</button>
         </div>
     </div>
 </div>
 
 <div id="adminEditSiswaModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-edit" style="color:var(--blue);margin-right:0.5rem;"></i> Edit Siswa</div>
-        <div class="form-group"><label class="form-label">Nama</label><input type="text" id="adminEditNama" class="form-control" disabled></div>
-        <div class="form-group"><label class="form-label">Email</label><input type="email" id="adminEditEmail" class="form-control" disabled></div>
-        <div class="form-group"><label class="form-label">Kelas</label><div id="adminEditKelasCheckboxes" class="checkbox-kelas-wrap"></div></div>
-        <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
+        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-edit" style="color:var(--blue);margin-right:0.75rem;"></i> Edit Data Siswa</div>
+        <div class="form-group"><label class="form-label">Nama</label><input type="text" id="adminEditNama" class="form-control" disabled style="opacity:0.7;"></div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" id="adminEditEmail" class="form-control" disabled style="opacity:0.7;"></div>
+        <div class="form-group"><label class="form-label">Atur Kelas</label><div id="adminEditKelasCheckboxes" class="checkbox-kelas-wrap"></div></div>
+        <div style="display:flex; gap:1rem; margin-top:2rem;">
             <button class="btn btn-outline" onclick="closeModal('adminEditSiswaModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-blue" onclick="submitAdminEditSiswa()" style="flex:2;" id="btn-admin-edit">Simpan</button>
+            <button class="btn btn-blue" onclick="submitAdminEditSiswa()" style="flex:2;" id="btn-admin-edit">Simpan Data</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL TAMBAH JADWAL -->
 <div id="jadwalModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-regular fa-calendar-plus" style="color:var(--red);margin-right:0.5rem;"></i> Form Jadwal</div>
-        <div class="form-group"><label class="form-label">Judul / Mata Pelajaran</label><input type="text" id="jadwalJudul" class="form-control"></div>
+        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-regular fa-calendar-plus" style="color:var(--red);margin-right:0.75rem;"></i> Form Jadwal</div>
+        <div class="form-group"><label class="form-label">Judul / Mata Pelajaran</label><input type="text" id="jadwalJudul" class="form-control" placeholder="Contoh: Matematika Dasar"></div>
         <div class="form-group"><label class="form-label">Tanggal</label><input type="date" id="jadwalTanggal" class="form-control"></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
             <div class="form-group"><label class="form-label">Jam Mulai</label><input type="time" id="jadwalJamMulai" class="form-control"></div>
             <div class="form-group"><label class="form-label">Jam Selesai</label><input type="time" id="jadwalJamSelesai" class="form-control"></div>
         </div>
-        <div class="form-group"><label class="form-label">Ruangan / Link</label><input type="text" id="jadwalRuangan" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Ruangan / Link Meet</label><input type="text" id="jadwalRuangan" class="form-control" placeholder="Ruang A / Link Zoom"></div>
         <div class="form-group"><label class="form-label">Kelas Tujuan</label><select id="jadwalKelas" class="form-select"></select></div>
-        <div class="form-group"><label class="form-label">Catatan (opsional)</label><textarea id="jadwalCatatan" class="form-control"></textarea></div>
-        <div style="display:flex; gap:0.75rem; margin-top:1rem;">
+        <div class="form-group"><label class="form-label">Catatan (opsional)</label><textarea id="jadwalCatatan" class="form-control" placeholder="Catatan tambahan untuk siswa..."></textarea></div>
+        <div style="display:flex; gap:1rem; margin-top:1.5rem;">
             <button class="btn btn-outline" onclick="closeModal('jadwalModal')" style="flex:1;">Batal</button>
             <button class="btn btn-red" onclick="submitJadwal()" style="flex:2;" id="btn-jadwal-submit">Simpan Jadwal</button>
         </div>
     </div>
 </div>
 
-<!-- MODAL EDIT JADWAL -->
 <div id="adminEditJadwalModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-edit" style="color:var(--blue);margin-right:0.5rem;"></i> Edit Jadwal</div>
+        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-edit" style="color:var(--blue);margin-right:0.75rem;"></i> Edit Jadwal</div>
         <div class="form-group"><label class="form-label">Judul</label><input type="text" id="adminJadwalJudul" class="form-control"></div>
         <div class="form-group"><label class="form-label">Tanggal</label><input type="date" id="adminJadwalTanggal" class="form-control"></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
             <div class="form-group"><label class="form-label">Jam Mulai</label><input type="time" id="adminJadwalJamMulai" class="form-control"></div>
             <div class="form-group"><label class="form-label">Jam Selesai</label><input type="time" id="adminJadwalJamSelesai" class="form-control"></div>
         </div>
-        <div class="form-group"><label class="form-label">Ruangan</label><input type="text" id="adminJadwalRuangan" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Ruangan / Link</label><input type="text" id="adminJadwalRuangan" class="form-control"></div>
         <div class="form-group"><label class="form-label">Catatan</label><textarea id="adminJadwalCatatan" class="form-control"></textarea></div>
-        <div style="display:flex; gap:0.75rem; margin-top:1rem;">
+        <div style="display:flex; gap:1rem; margin-top:1.5rem;">
             <button class="btn btn-outline" onclick="closeModal('adminEditJadwalModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-blue" onclick="submitAdminEditJadwal()" style="flex:2;" id="btn-admin-jadwal-submit">Simpan</button>
+            <button class="btn btn-blue" onclick="submitAdminEditJadwal()" style="flex:2;" id="btn-admin-jadwal-submit">Simpan Perubahan</button>
         </div>
     </div>
 </div>
 
 <div id="siswaAddCatatanModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-title" id="siswaCatatanModalTitle" style="margin-bottom:0.5rem;"><i class="fa-solid fa-note-sticky" style="color:var(--yellow);margin-right:0.5rem;"></i> Catatan Jadwal</div>
-        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;" id="siswaJadwalInfo"></div>
-        <div class="form-group"><label class="form-label">Catatan Anda</label><textarea id="siswaCatatanText" class="form-control"></textarea></div>
-        <div style="display:flex; gap:0.75rem; margin-top:1rem;">
+        <div class="modal-title" id="siswaCatatanModalTitle" style="margin-bottom:0.5rem;"><i class="fa-solid fa-note-sticky" style="color:var(--yellow);margin-right:0.75rem;"></i> Catatan Jadwal</div>
+        <div style="font-size:0.9rem;color:var(--muted);margin-bottom:1.5rem; line-height:1.5; background:rgba(0,0,0,0.03); padding:0.75rem; border-radius:8px;" id="siswaJadwalInfo"></div>
+        <div class="form-group"><label class="form-label">Catatan Pribadi Anda</label><textarea id="siswaCatatanText" class="form-control" placeholder="Tulis pengingat atau catatan belajar di sini..."></textarea></div>
+        <div style="display:flex; gap:1rem; margin-top:1.5rem;">
             <button class="btn btn-outline" onclick="closeModal('siswaAddCatatanModal')" style="flex:1;">Batal</button>
             <button class="btn btn-yellow" onclick="submitSiswaCatatan()" style="flex:2;" id="btn-siswa-catatan">Simpan Catatan</button>
         </div>
@@ -358,22 +517,19 @@
 
 <div id="uploadModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-file-arrow-up" style="color:var(--green);margin-right:0.5rem;"></i> Upload Soal PDF</div>
-        <div class="form-group"><label class="form-label">Judul Soal</label><input type="text" id="fileJudul" class="form-control"></div>
-        <div class="form-group"><label class="form-label">Mata Pelajaran</label><input type="text" id="fileMapel" class="form-control"></div>
+        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-file-arrow-up" style="color:var(--green);margin-right:0.75rem;"></i> Upload Soal / Materi</div>
+        <div class="form-group"><label class="form-label">Judul Materi</label><input type="text" id="fileJudul" class="form-control" placeholder="Contoh: Latihan TPA"></div>
+        <div class="form-group"><label class="form-label">Mata Pelajaran</label><input type="text" id="fileMapel" class="form-control" placeholder="Contoh: Matematika"></div>
         <div class="form-group"><label class="form-label">Kelas Tujuan</label><select id="fileKelas" class="form-select"></select></div>
-        <div class="form-group"><label class="form-label">Pilih File (PDF)</label><input type="file" id="fileInput" class="form-control" accept="application/pdf,.pdf"></div>
-        <div style="display:flex; gap:0.75rem; margin-top:1rem;">
+        <div class="form-group"><label class="form-label">Pilih File (PDF)</label><input type="file" id="fileInput" class="form-control" accept="application/pdf,.pdf" style="padding: 0.75rem 1rem;"></div>
+        <div style="display:flex; gap:1rem; margin-top:1.5rem;">
             <button class="btn btn-outline" onclick="closeModal('uploadModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-green" onclick="submitUpload()" style="flex:2;" id="btn-upload-submit">Upload</button>
+            <button class="btn btn-green" onclick="submitUpload()" style="flex:2;" id="btn-upload-submit">Mulai Upload</button>
         </div>
     </div>
 </div>
 
 <script>
-// ==============================
-// KONFIGURASI KELAS & UTILS
-// ==============================
 const KELAS_KATEGORI = {
     "KEDOKTERAN & UMUM": [
         { value: "UTBK-KEDOKTERAN", label: "UTBK Kedokteran" }, { value: "UTBK-UMUM", label: "UTBK Umum" },
@@ -419,6 +575,15 @@ function renderKelasOptionsGrouped() {
     }
     return html;
 }
+function renderKelasOptionsForFilter(selectedVal) {
+    let html = `<option value="all" ${selectedVal === 'all' ? 'selected' : ''}>Semua Kelas</option>`;
+    for (const kat in KELAS_KATEGORI) {
+        html += `<optgroup label="${kat}">`;
+        html += KELAS_KATEGORI[kat].map(k => `<option value="${k.value}" ${selectedVal === k.value ? 'selected' : ''}>${k.label}</option>`).join('');
+        html += `</optgroup>`;
+    }
+    return html;
+}
 
 function escapeHtml(str) {
     if (str == null) return '';
@@ -438,18 +603,40 @@ function formatTanggalLengkap(dateStr) {
 function toast(msg, type='success') {
     const el = document.createElement('div');
     el.className = 'toast ' + (type==='error'?'error':'');
-    el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}"></i> ${msg}`;
+    el.innerHTML = `<i class="fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}"></i> <span>${msg}</span>`;
     document.getElementById('toast-container').appendChild(el);
-    setTimeout(() => el.remove(), 4000);
+    setTimeout(() => {
+        el.style.animation = 'slideIn 0.4s reverse forwards';
+        setTimeout(() => el.remove(), 400);
+    }, 4000);
 }
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function closeModal(id) { 
+    const el = document.getElementById(id);
+    el.style.opacity = '0';
+    const box = el.querySelector('.modal-box');
+    if(box) box.style.transform = 'translateY(20px) scale(0.95)';
+    setTimeout(() => {
+        el.classList.remove('show');
+        el.style.opacity = '';
+        if(box) box.style.transform = '';
+    }, 300);
+}
 function setLoading(id, isLoading, text='') {
     const el = document.getElementById(id);
     if(el) { el.disabled = isLoading; el.innerHTML = isLoading ? '<div class="loading-spinner"></div>' : text; }
 }
 function toggleTheme() {
     const d = document.documentElement;
-    d.getAttribute('data-theme') === 'dark' ? d.removeAttribute('data-theme') : d.setAttribute('data-theme','dark');
+    const btnIcon = document.querySelector('.theme-btn i');
+    if (d.getAttribute('data-theme') === 'dark') {
+        d.removeAttribute('data-theme');
+        btnIcon.className = 'fa-solid fa-moon';
+        localStorage.setItem('imc_theme', 'light');
+    } else {
+        d.setAttribute('data-theme','dark');
+        btnIcon.className = 'fa-solid fa-sun';
+        localStorage.setItem('imc_theme', 'dark');
+    }
 }
 function toggleUserMenu() {
     document.getElementById('userMenuDropdown').classList.toggle('show');
@@ -474,13 +661,11 @@ function togglePassword(inputId, iconEl) {
     }
 }
 
-// ==============================
-// STATE & CORE
-// ==============================
 window.currentUser = null;
 let currentView = 'public';
 let currentWeekOffset = 0;
 let adminFilterStatus = 'all';
+let adminFilterKelas = 'all';
 let chatSubscription = null;
 let editingSiswaId = null, editingJadwalId = null, selectedJadwalForCatatan = null, selectedCatatanId = null;
 let adminIsAddingJadwal = false;
@@ -506,15 +691,12 @@ function renderWeekControls() {
     const range = getWeekRange(currentWeekOffset);
     return `
     <div class="week-controls">
-        <button onclick="changeWeek(-1)"><i class="fa-solid fa-chevron-left"></i> Minggu Lalu</button>
+        <button onclick="changeWeek(-1)"><i class="fa-solid fa-chevron-left"></i> <span style="display:none;@media(min-width:480px){display:inline;}">Minggu Lalu</span></button>
         <div class="week-label">${range.label}</div>
-        <button onclick="changeWeek(1)">Minggu Depan <i class="fa-solid fa-chevron-right"></i></button>
+        <button onclick="changeWeek(1)"><span style="display:none;@media(min-width:480px){display:inline;}">Minggu Depan</span> <i class="fa-solid fa-chevron-right"></i></button>
     </div>`;
 }
 
-// ==============================
-// AUTH
-// ==============================
 window.showAuth = function() {
     document.getElementById('regClassCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
     document.getElementById('authModal').classList.add('show');
@@ -532,7 +714,7 @@ window.processLogin = async function() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
     const role = document.getElementById('loginRole').value;
-    if (!email || !password || !role) return toast('Isi semua field!', 'error');
+    if (!email || !password || !role) return toast('Isi semua form login dengan lengkap!', 'error');
 
     setLoading('btn-login', true);
     try {
@@ -541,12 +723,12 @@ window.processLogin = async function() {
         const { data: profile } = await window.sb.from('profiles').select('*').eq('id', data.user.id).single();
         if (profile.role !== role) {
             await window.sb.auth.signOut();
-            throw new Error(`Akun ini terdaftar sebagai "${profile.role}".`);
+            throw new Error(`Akun ini terdaftar sebagai "${profile.role}", bukan "${role}".`);
         }
-        closeAuth(); toast(`Selamat datang, ${profile.nama}!`);
+        closeAuth(); toast(`Selamat datang kembali, ${profile.nama}!`);
         await loadProfileAndRoute();
     } catch(e) { toast(e.message, 'error'); }
-    setLoading('btn-login', false, 'Masuk');
+    setLoading('btn-login', false, 'Masuk Sekarang');
 }
 
 window.processRegister = async function() {
@@ -554,8 +736,8 @@ window.processRegister = async function() {
     const password = document.getElementById('regPassword').value, role = document.getElementById('regRole').value;
     const kelas = [...document.querySelectorAll('#regClassCheckboxes input:checked')].map(c=>c.value);
     
-    if (!nama || !email || !password || !role) return toast('Isi semua field!', 'error');
-    if (kelas.length === 0) return toast('Pilih minimal satu kelas!', 'error');
+    if (!nama || !email || !password || !role) return toast('Harap isi semua field!', 'error');
+    if (kelas.length === 0) return toast('Pilih minimal satu kelas tujuan!', 'error');
 
     setLoading('btn-register', true);
     try {
@@ -563,22 +745,26 @@ window.processRegister = async function() {
         if(error) throw error;
         closeAuth(); toast('Akun berhasil dibuat! Silakan masuk.');
     } catch(e) { toast(e.message, 'error'); }
-    setLoading('btn-register', false, 'Daftar');
+    setLoading('btn-register', false, 'Daftar Akun');
 }
 window.doLogout = async function() { 
-    if(!confirm('Yakin ingin keluar?')) return;
+    if(!confirm('Apakah Anda yakin ingin keluar dari portal?')) return;
     await window.sb.auth.signOut(); window.location.reload(); 
 }
 
-// ==============================
-// NAVIGATION & ROUTING
-// ==============================
 async function loadProfileAndRoute() {
     const { data: { user } } = await window.sb.auth.getUser();
-    if (!user) return showView('public');
+    if (!user) {
+        document.getElementById('initial-loader').classList.add('hidden');
+        return showView('public');
+    }
     
     const { data: profile, error } = await window.sb.from('profiles').select('*').eq('id', user.id).single();
-    if (error || !profile) { await window.sb.auth.signOut(); return showView('public'); }
+    if (error || !profile) { 
+        await window.sb.auth.signOut(); 
+        document.getElementById('initial-loader').classList.add('hidden');
+        return showView('public'); 
+    }
     
     window.currentUser = profile;
     document.getElementById('user-name-chip').textContent = profile.nama.split(' ')[0];
@@ -592,16 +778,20 @@ async function loadProfileAndRoute() {
     if (profile.role === 'admin') showView('admin-dashboard');
     else if (profile.role === 'pengajar') showView('pengajar-dashboard');
     else showView('siswa-dashboard');
+
+    document.getElementById('initial-loader').classList.add('hidden');
 }
 
 function renderRibbon(role) {
     const menus = {
-        siswa: [{ i:'fa-house', lbl:'Beranda', v:'siswa-dashboard' }, { i:'fa-calendar-days', lbl:'Jadwal', v:'siswa-jadwal' }, { i:'fa-folder-open', lbl:'Materi', v:'siswa-materi' }, { i:'fa-comments', lbl:'Chat', v:'chat-global'}],
-        pengajar: [{ i:'fa-house', lbl:'Beranda', v:'pengajar-dashboard' }, { i:'fa-calendar-plus', lbl:'Jadwal', v:'pengajar-jadwal' }, { i:'fa-file-arrow-up', lbl:'Upload', v:'pengajar-upload' }, { i:'fa-comments', lbl:'Chat', v:'chat-global'}],
-        admin: [{ i:'fa-gauge', lbl:'Dashboard', v:'admin-dashboard' }, { i:'fa-users', lbl:'Siswa', v:'admin-siswa' }, { i:'fa-calendar-check', lbl:'Jadwal', v:'admin-jadwal' }, { i:'fa-comments', lbl:'Chat', v:'chat-global'}]
+        siswa: [{ i:'fa-house', lbl:'Beranda', v:'siswa-dashboard' }, { i:'fa-calendar-days', lbl:'Jadwal', v:'siswa-jadwal' }, { i:'fa-folder-open', lbl:'Materi', v:'siswa-materi' }, { i:'fa-comments', lbl:'Diskusi', v:'chat-global'}],
+        pengajar: [{ i:'fa-house', lbl:'Beranda', v:'pengajar-dashboard' }, { i:'fa-calendar-plus', lbl:'Jadwal', v:'pengajar-jadwal' }, { i:'fa-file-arrow-up', lbl:'Upload', v:'pengajar-upload' }, { i:'fa-comments', lbl:'Diskusi', v:'chat-global'}],
+        admin: [{ i:'fa-gauge-high', lbl:'Panel', v:'admin-dashboard' }, { i:'fa-users', lbl:'Siswa', v:'admin-siswa' }, { i:'fa-calendar-check', lbl:'Jadwal', v:'admin-jadwal' }, { i:'fa-comments', lbl:'Diskusi', v:'chat-global'}]
     };
     document.getElementById('ribbon-links').innerHTML = menus[role].map(m => `
-        <button class="ribbon-btn" onclick="showView('${m.v}')" data-view="${m.v}"><i class="fa-solid ${m.i}"></i><span>${m.lbl}</span></button>
+        <button class="ribbon-btn" onclick="showView('${m.v}')" data-view="${m.v}">
+            <i class="fa-solid ${m.i}"></i><span>${m.lbl}</span>
+        </button>
     `).join('');
 }
 
@@ -618,20 +808,21 @@ window.showView = function(v) {
     else if(v === 'pengajar-upload') renderPengajarUpload();
     else if(v === 'admin-dashboard') renderAdminDashboard();
     else if(v === 'admin-siswa') renderAdminSiswa();
+    else if(v === 'admin-pengajar') renderAdminPengajar();
     else if(v === 'admin-jadwal') renderAdminJadwal();
     else if(v === 'chat-global') renderChatGlobal();
 }
 
 function renderPublic() {
     document.getElementById('app').innerHTML = `
-    <div class="container" style="max-width:700px;">
+    <div class="container" style="max-width:700px; padding-top: 4rem;">
         <div class="hero">
             <img src="https://github.com/Defdava/Modul1Prakppb/blob/main/logo-website.png?raw=true" alt="IMC Logo" class="hero-logo">
-            <div style="font-weight:600;color:var(--muted);letter-spacing:0.08em;margin-bottom:0.75rem;">INDONESIA MIND CENTER</div>
-            <p class="hero-sub">Platform bimbingan belajar terpadu dengan Favicon Logo Resmi.</p>
+            <div style="font-weight:800;font-size:1.4rem;color:var(--text);letter-spacing:0.05em;margin-bottom:0.75rem;">INDONESIA MIND CENTER</div>
+            <p class="hero-sub">Platform bimbingan belajar eksklusif, terpadu, dan terbaik untuk persiapan Kedinasan, Kedokteran, dan Universitas favorit Anda.</p>
             <div class="hero-btns">
-                <button class="btn btn-red" onclick="showAuth(); switchTab('login')">Masuk</button>
-                <button class="btn btn-green" onclick="showAuth(); switchTab('register')">Daftar</button>
+                <button class="btn btn-red" style="padding: 1rem 2.5rem; font-size: 1.05rem;" onclick="showAuth(); switchTab('login')"><i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk</button>
+                <button class="btn btn-outline" style="padding: 1rem 2.5rem; font-size: 1.05rem; background: var(--card-bg-solid);" onclick="showAuth(); switchTab('register')">Daftar Baru</button>
             </div>
         </div>
     </div>`;
@@ -650,39 +841,36 @@ async function loadCatatanMap(jadwalIds) {
     return map;
 }
 
-// ==============================
-// RENDER JADWAL
-// ==============================
 function jadwalItemHtml(j, roleType, catatanList=[]) {
     const { dayName, day, month } = formatTanggalLengkap(j.tanggal);
     const isSelesai = j.status === 'selesai';
-    const statusHtml = isSelesai ? `<span class="badge badge-green"><i class="fa-solid fa-check-circle"></i> Selesai</span>` : `<span class="badge badge-red">Pending</span>`;
+    const statusHtml = isSelesai ? `<span class="badge badge-green"><i class="fa-solid fa-check-circle"></i> Selesai</span>` : `<span class="badge badge-red"><i class="fa-solid fa-clock"></i> Menunggu</span>`;
     
     const formatJam = j.jam_selesai ? `${j.jam} - ${j.jam_selesai}` : (j.jam || '—');
 
     let catatanHtml = '';
     if (roleType === 'siswa') {
         const mine = catatanList.find(c => c.siswa_id === window.currentUser.id);
-        if (mine) catatanHtml = `<div class="catatan-container"><div class="catatan-label">Catatan Anda</div><div class="catatan-text">${escapeHtml(mine.catatan)}</div></div>`;
+        if (mine) catatanHtml = `<div class="catatan-container"><div class="catatan-label"><i class="fa-solid fa-thumbtack"></i> Catatan Anda</div><div class="catatan-text">${escapeHtml(mine.catatan)}</div></div>`;
     } else if (roleType === 'admin' || roleType === 'pengajar') {
         if (catatanList.length > 0) {
-            catatanHtml = `<div class="catatan-container"><div class="catatan-label">Catatan Siswa (${catatanList.length})</div>
-            ${catatanList.map(c => `<div class="catatan-item"><div style="font-weight:600;font-size:0.8rem;color:#1d4ed8;">${escapeHtml(c.siswa_nama)}</div><div class="catatan-text">${escapeHtml(c.catatan)}</div></div>`).join('')}</div>`;
+            catatanHtml = `<div class="catatan-container"><div class="catatan-label"><i class="fa-solid fa-users"></i> Catatan Siswa (${catatanList.length})</div>
+            ${catatanList.map(c => `<div class="catatan-item"><div style="font-weight:700;font-size:0.85rem;color:var(--blue);margin-bottom:0.2rem;">${escapeHtml(c.siswa_nama)}</div><div class="catatan-text">${escapeHtml(c.catatan)}</div></div>`).join('')}</div>`;
         }
     }
 
     let actionsHtml = '';
     if (roleType === 'siswa') {
         const mine = catatanList.find(c => c.siswa_id === window.currentUser.id);
-        actionsHtml = `<button class="btn btn-yellow btn-sm" onclick="openSiswaCatatanModal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${formatJam}', '${mine?mine.id:''}', '${mine?(mine.catatan||'').replace(/'/g,"\\'").replace(/\n/g,'\\n'):''}')"><i class="fa-solid ${mine?'fa-pen':'fa-note-sticky'}"></i> ${mine?'Edit Catatan':'Tambah Catatan'}</button>`;
+        actionsHtml = `<button class="btn btn-yellow btn-sm" onclick="openSiswaCatatanModal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${formatJam}', '${mine?mine.id:''}', '${mine?(mine.catatan||'').replace(/'/g,"\\'").replace(/\n/g,'\\n'):''}')"><i class="fa-solid ${mine?'fa-pen':'fa-note-sticky'}"></i> ${mine?'Edit Catatan':'Buat Catatan'}</button>`;
     } else if (roleType === 'pengajar') {
         if (!isSelesai) {
-            actionsHtml += `<button class="btn btn-green btn-sm" onclick="fiksasiJadwal('${j.id}')"><i class="fa-solid fa-check"></i> Selesai</button>`;
+            actionsHtml += `<button class="btn btn-green btn-sm" onclick="fiksasiJadwal('${j.id}')"><i class="fa-solid fa-check"></i> Tandai Selesai</button>`;
         }
-        actionsHtml += `<button class="btn btn-danger btn-sm" onclick="deleteJadwal('${j.id}')"><i class="fa-solid fa-trash"></i></button>`;
+        actionsHtml += `<button class="btn btn-danger btn-sm" onclick="deleteJadwal('${j.id}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>`;
     } else if (roleType === 'admin') {
-        actionsHtml += `<button class="btn btn-blue btn-sm" onclick="openAdminEditJadwal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${j.jam||''}', '${j.jam_selesai||''}', '${(j.ruangan||'').replace(/'/g,"\\'")}', '${(j.catatan||'').replace(/'/g,"\\'")}')"><i class="fa-solid fa-edit"></i></button>
-        <button class="btn btn-danger btn-sm" onclick="deleteAdminJadwal('${j.id}')"><i class="fa-solid fa-trash"></i></button>`;
+        actionsHtml += `<button class="btn btn-blue btn-sm" onclick="openAdminEditJadwal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${j.jam||''}', '${j.jam_selesai||''}', '${(j.ruangan||'').replace(/'/g,"\\'")}', '${(j.catatan||'').replace(/'/g,"\\'")}')"><i class="fa-solid fa-edit"></i> Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAdminJadwal('${j.id}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>`;
     }
 
     return `
@@ -695,89 +883,87 @@ function jadwalItemHtml(j, roleType, catatanList=[]) {
         <div class="jadwal-info">
             <div class="jadwal-title">${escapeHtml(j.judul)||'Tanpa Judul'} ${statusHtml}</div>
             <div class="jadwal-meta">
-                <span><i class="fa-regular fa-clock"></i> ${formatJam} WIB</span> •
+                <span><i class="fa-solid fa-clock"></i> ${formatJam} WIB</span> •
                 <span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(j.ruangan)||'—'}</span> •
                 ${badgeKelas(j.kelas||'')}
             </div>
-            ${j.catatan ? `<div class="jadwal-meta" style="margin-top:0.3rem;"><i class="fa-regular fa-note-sticky"></i> ${escapeHtml(j.catatan)}</div>` : ''}
-            <div class="jadwal-meta" style="margin-top:0.25rem;">👤 Pengajar: ${escapeHtml(j.pengajar_nama)||'—'}</div>
+            ${j.catatan ? `<div class="jadwal-meta" style="margin-top:0.4rem; color:var(--text); font-weight:500;"><i class="fa-solid fa-circle-info" style="color:var(--blue);"></i> ${escapeHtml(j.catatan)}</div>` : ''}
+            <div class="jadwal-meta" style="margin-top:0.4rem; font-weight:600;"><i class="fa-solid fa-chalkboard-user"></i> Pengajar: ${escapeHtml(j.pengajar_nama)||'—'}</div>
             ${catatanHtml}
         </div>
-        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:flex-start;">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:flex-start;">
             ${actionsHtml}
         </div>
     </div>`;
 }
 
 window.fiksasiJadwal = async function(id) {
-    if(!confirm('Tandai jadwal ini sudah dilaksanakan?')) return;
+    if(!confirm('Tandai jadwal ini sudah dilaksanakan secara final?')) return;
     try {
         await window.sb.from('jadwal').update({ status: 'selesai' }).eq('id', id);
-        toast('Jadwal ditandai selesai.');
+        toast('Jadwal berhasil ditandai selesai.');
         renderPengajarJadwal();
-    } catch(e) { toast('Gagal', 'error'); }
+    } catch(e) { toast('Gagal memproses pembaruan', 'error'); }
 }
 window.deleteJadwal = async function(id) {
-    if(!confirm('Hapus jadwal ini?')) return;
-    await window.sb.from('jadwal').delete().eq('id', id); toast('Dihapus.'); renderPengajarJadwal();
+    if(!confirm('Anda yakin ingin menghapus jadwal ini?')) return;
+    await window.sb.from('jadwal').delete().eq('id', id); toast('Jadwal dihapus.'); renderPengajarJadwal();
 }
 window.deleteAdminJadwal = async function(id) {
-    if(!confirm('Hapus jadwal ini?')) return;
-    await window.sb.from('jadwal').delete().eq('id', id); toast('Dihapus.'); renderAdminJadwal();
+    if(!confirm('Anda yakin ingin menghapus jadwal ini dari sistem?')) return;
+    await window.sb.from('jadwal').delete().eq('id', id); toast('Jadwal dihapus permanen.'); renderAdminJadwal();
 }
 
-// ==============================
-// SISWA & PENGAJAR VIEWS
-// ==============================
 async function renderSiswaDashboard() {
     const kList = window.currentUser.kelas_list || [];
     document.getElementById('app').innerHTML = `
     <div class="container">
-        <div class="page-header"><div><div class="page-title">Halo, <span>${window.currentUser.nama.split(' ')[0]}</span> 👋</div></div></div>
-        <div class="card"><div class="card-title">Soal Terbaru</div><div id="siswa-materi-preview"><div class="loading-spinner"></div></div></div>
+        <div class="page-header"><div><div class="page-title">Halo, <span>${window.currentUser.nama.split(' ')[0]}</span> 👋</div><div style="color:var(--muted); font-size:1rem; margin-top:0.2rem;">Selamat datang di portal belajarmu.</div></div></div>
+        <div class="card"><div class="card-title"><i class="fa-solid fa-file-invoice" style="color:var(--blue);"></i> Latihan Soal Terbaru</div><div id="siswa-materi-preview"><div class="loading-spinner"></div></div></div>
     </div>`;
     if(!kList.length) return;
     const { data } = await window.sb.from('soal_files').select('*').in('kelas', kList).order('created_at',{ascending:false}).limit(3);
-    document.getElementById('siswa-materi-preview').innerHTML = data.length ? data.map(f => fileItemHtml(f, false)).join('') : 'Belum ada file.';
+    document.getElementById('siswa-materi-preview').innerHTML = data.length ? data.map(f => fileItemHtml(f, false)).join('') : `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>Belum ada file materi baru.</p></div>`;
 }
 
 async function renderSiswaJadwal() {
     const range = getWeekRange(currentWeekOffset);
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-calendar-days"></i> Jadwal <span>Belajar</span></div></div>${renderWeekControls()}<div class="card"><div id="jadwal-list"><div class="loading-spinner"></div></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-regular fa-calendar-days"></i> Jadwal <span>Belajar</span></div></div>${renderWeekControls()}<div class="card"><div id="jadwal-list"><div class="loading-spinner"></div></div></div></div>`;
     const kList = window.currentUser.kelas_list || [];
-    if(!kList.length) return document.getElementById('jadwal-list').innerHTML = 'Tidak ada kelas.';
+    if(!kList.length) return document.getElementById('jadwal-list').innerHTML = `<div class="empty-state"><i class="fa-solid fa-ban"></i><p>Anda belum terdaftar di kelas manapun.</p></div>`;
     const { data } = await window.sb.from('jadwal').select('*').in('kelas', kList).gte('tanggal', range.start).lte('tanggal', range.end).order('tanggal');
     const cMap = await loadCatatanMap(data.map(j=>j.id));
-    document.getElementById('jadwal-list').innerHTML = data.length ? data.map(j => jadwalItemHtml(j, 'siswa', cMap[j.id]||[])).join('') : `<div class="empty-state">Tidak ada jadwal di minggu ini.</div>`;
+    document.getElementById('jadwal-list').innerHTML = data.length ? data.map(j => jadwalItemHtml(j, 'siswa', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Tidak ada jadwal belajar di minggu ini.</p></div>`;
 }
 
 async function renderPengajarDashboard() {
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title">Dashboard <span>Pengajar</span></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;"><button class="btn btn-red btn-full" onclick="showView('pengajar-jadwal')">Kelola Jadwal</button><button class="btn btn-green btn-full" onclick="showView('pengajar-upload')">Upload Soal</button></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title">Dashboard <span>Pengajar</span></div></div><div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem; padding: 3rem 2rem;"><button class="btn btn-red btn-full" style="padding:1.5rem; font-size:1.1rem;" onclick="showView('pengajar-jadwal')"><i class="fa-solid fa-calendar-days fa-2x" style="margin-bottom:0.5rem; display:block;"></i>Kelola Jadwal</button><button class="btn btn-green btn-full" style="padding:1.5rem; font-size:1.1rem;" onclick="showView('pengajar-upload')"><i class="fa-solid fa-file-arrow-up fa-2x" style="margin-bottom:0.5rem; display:block;"></i>Upload Soal</button></div></div>`;
 }
 
 async function renderPengajarJadwal() {
     const range = getWeekRange(currentWeekOffset);
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title">Kelola <span>Jadwal</span></div><button class="btn btn-red btn-sm" onclick="openJadwalModal()"><i class="fa-solid fa-plus"></i> Tambah</button></div>${renderWeekControls()}<div class="card"><div id="pg-jadwal-full"><div class="loading-spinner"></div></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-calendar-plus"></i> Kelola <span>Jadwal</span></div><button class="btn btn-red btn-sm" onclick="openJadwalModal()"><i class="fa-solid fa-plus"></i> Buat Jadwal</button></div>${renderWeekControls()}<div class="card"><div id="pg-jadwal-full"><div class="loading-spinner"></div></div></div></div>`;
     const { data } = await window.sb.from('jadwal').select('*').eq('pengajar_id', window.currentUser.id).gte('tanggal', range.start).lte('tanggal', range.end).order('tanggal');
     const cMap = await loadCatatanMap(data.map(j=>j.id));
-    document.getElementById('pg-jadwal-full').innerHTML = data.length ? data.map(j => jadwalItemHtml(j, 'pengajar', cMap[j.id]||[])).join('') : `<div class="empty-state">Tidak ada jadwal di minggu ini.</div>`;
+    document.getElementById('pg-jadwal-full').innerHTML = data.length ? data.map(j => jadwalItemHtml(j, 'pengajar', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><p>Anda belum membuat jadwal mengajar di minggu ini.</p></div>`;
 }
 
-// ==============================
-// ADMIN VIEWS & FILTER STATUS JADWAL
-// ==============================
 async function renderAdminDashboard() {
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title">Admin <span>Dashboard</span></div></div><div class="stats-grid" id="admin-stats"><div class="loading-spinner"></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-gauge-high"></i> Admin <span>Panel</span></div></div><div class="stats-grid" id="admin-stats"><div class="loading-spinner"></div></div></div>`;
     const { data: users } = await window.sb.from('profiles').select('*');
     const { count: jCount } = await window.sb.from('jadwal').select('*',{count:'exact',head:true});
     document.getElementById('admin-stats').innerHTML = `
-        <div class="stat-card"><div class="stat-num">${users.filter(u=>u.role==='siswa').length}</div><div class="stat-label">Total Siswa</div></div>
-        <div class="stat-card"><div class="stat-num">${users.filter(u=>u.role==='pengajar').length}</div><div class="stat-label">Total Pengajar</div></div>
-        <div class="stat-card"><div class="stat-num">${jCount||0}</div><div class="stat-label">Total Jadwal</div></div>`;
+        <div class="stat-card" onclick="showView('admin-siswa')"><div class="stat-num">${users.filter(u=>u.role==='siswa').length}</div><div class="stat-label"><i class="fa-solid fa-user-graduate"></i> Total Siswa</div></div>
+        <div class="stat-card" onclick="showView('admin-pengajar')"><div class="stat-num">${users.filter(u=>u.role==='pengajar').length}</div><div class="stat-label"><i class="fa-solid fa-chalkboard-user"></i> Total Pengajar</div></div>
+        <div class="stat-card"><div class="stat-num">${jCount||0}</div><div class="stat-label"><i class="fa-regular fa-calendar-check"></i> Total Jadwal</div></div>`;
 }
 
 window.setAdminFilterStatus = function(status) {
     adminFilterStatus = status;
+    renderAdminJadwal();
+}
+window.setAdminFilterKelas = function(kelas) {
+    adminFilterKelas = kelas;
     renderAdminJadwal();
 }
 
@@ -786,41 +972,54 @@ async function renderAdminJadwal() {
     document.getElementById('app').innerHTML = `
     <div class="container">
         <div class="page-header">
-            <div class="page-title">Kelola <span>Jadwal</span></div>
-            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                <button class="btn btn-green btn-sm" onclick="exportExcelJadwal()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-                <button class="btn btn-red btn-sm" onclick="openAdminAddJadwalModal()"><i class="fa-solid fa-plus"></i> Tambah</button>
+            <div class="page-title"><i class="fa-solid fa-calendar-check"></i> Monitor <span>Jadwal</span></div>
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                <button class="btn btn-green btn-sm" onclick="exportExcelJadwal()"><i class="fa-solid fa-file-excel"></i> Export Rekap</button>
+                <button class="btn btn-red btn-sm" onclick="openAdminAddJadwalModal()"><i class="fa-solid fa-plus"></i> Jadwal Baru</button>
             </div>
         </div>
         ${renderWeekControls()}
         
         <div class="filter-status-bar">
-            <button class="filter-btn ${adminFilterStatus === 'all' ? 'active' : ''}" onclick="setAdminFilterStatus('all')">Semua Status</button>
-            <button class="filter-btn ${adminFilterStatus === 'pending' ? 'active' : ''}" onclick="setAdminFilterStatus('pending')">Belum Selesai (Pending)</button>
+            <button class="filter-btn ${adminFilterStatus === 'all' ? 'active' : ''}" onclick="setAdminFilterStatus('all')">Semua</button>
+            <button class="filter-btn ${adminFilterStatus === 'pending' ? 'active' : ''}" onclick="setAdminFilterStatus('pending')">Belum Selesai</button>
             <button class="filter-btn ${adminFilterStatus === 'selesai' ? 'active' : ''}" onclick="setAdminFilterStatus('selesai')">Sudah Selesai</button>
+            <select class="filter-select" onchange="setAdminFilterKelas(this.value)">
+                ${renderKelasOptionsForFilter(adminFilterKelas)}
+            </select>
         </div>
 
         <div class="card"><div id="admin-jadwal-list"><div class="loading-spinner"></div></div></div>
     </div>`;
 
     let query = window.sb.from('jadwal').select('*').gte('tanggal', range.start).lte('tanggal', range.end);
+    
     if (adminFilterStatus === 'pending') {
         query = query.or('status.eq.pending,status.is.null');
     } else if (adminFilterStatus === 'selesai') {
         query = query.eq('status', 'selesai');
     }
 
+    if (adminFilterKelas !== 'all') {
+        query = query.eq('kelas', adminFilterKelas);
+    }
+
     const { data } = await query.order('tanggal');
     const cMap = await loadCatatanMap((data || []).map(j=>j.id));
     
-    document.getElementById('admin-jadwal-list').innerHTML = (data && data.length) ? data.map(j => jadwalItemHtml(j, 'admin', cMap[j.id]||[])).join('') : `<div class="empty-state">Tidak ada jadwal dengan status ini di minggu ini.</div>`;
+    document.getElementById('admin-jadwal-list').innerHTML = (data && data.length) ? data.map(j => jadwalItemHtml(j, 'admin', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><p>Tidak ada jadwal dengan kriteria ini.</p></div>`;
 }
 
 window.exportExcelJadwal = async function() {
     const range = getWeekRange(currentWeekOffset);
     let query = window.sb.from('jadwal').select('*').gte('tanggal', range.start).lte('tanggal', range.end);
+    
     if (adminFilterStatus === 'pending') query = query.or('status.eq.pending,status.is.null');
     else if (adminFilterStatus === 'selesai') query = query.eq('status', 'selesai');
+
+    if (adminFilterKelas !== 'all') {
+        query = query.eq('kelas', adminFilterKelas);
+    }
 
     const { data } = await query.order('tanggal');
     if (!data || data.length === 0) return toast('Tidak ada data jadwal untuk diekspor.', 'error');
@@ -829,20 +1028,18 @@ window.exportExcelJadwal = async function() {
         'Mata Pelajaran': j.judul, 'Tanggal': j.tanggal,
         'Jam Mulai': j.jam, 'Jam Selesai': j.jam_selesai || '-',
         'Kelas': getLabelKelas(j.kelas), 'Ruangan': j.ruangan,
-        'Pengajar': j.pengajar_nama, 'Status': j.status === 'selesai' ? 'Selesai' : 'Pending'
+        'Pengajar': j.pengajar_nama, 'Status': j.status === 'selesai' ? 'Selesai' : 'Pending',
+        'Catatan': j.catatan || ''
     }));
     const ws = XLSX.utils.json_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Rekap Jadwal");
-    XLSX.writeFile(wb, `Rekap_Jadwal_${adminFilterStatus}_${range.start}.xlsx`);
-    toast('Excel diunduh!');
+    XLSX.writeFile(wb, `Rekap_Jadwal_${adminFilterStatus}_${adminFilterKelas}_${range.start}.xlsx`);
+    toast('File Excel berhasil diunduh!');
 }
 
-// ==============================
-// LIVE CHAT
-// ==============================
 async function renderChatGlobal() {
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-comments"></i> Live <span>Chat Forum</span></div></div><div class="chat-container"><div class="chat-messages" id="chat-messages-box"><div class="loading-spinner"></div></div><div class="chat-input-area"><input type="text" id="chatInput" class="form-control" placeholder="Tulis pesan..." onkeypress="if(event.key==='Enter') sendChat()"><button class="btn btn-red" onclick="sendChat()"><i class="fa-solid fa-paper-plane"></i></button></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-comments"></i> Forum <span>Diskusi Global</span></div></div><div class="chat-container"><div class="chat-messages" id="chat-messages-box"><div class="loading-spinner"></div></div><div class="chat-input-area"><input type="text" id="chatInput" class="form-control" placeholder="Tulis pesan ke forum..." onkeypress="if(event.key==='Enter') sendChat()"><button class="btn btn-red" style="padding: 0; display:flex; align-items:center; justify-content:center;" onclick="sendChat()"><i class="fa-solid fa-paper-plane" style="margin-right:2px;"></i></button></div></div></div>`;
     const { data } = await window.sb.from('chat_messages').select('*').order('created_at', { ascending: false }).limit(50);
     renderChatList(data ? data.reverse() : []);
 }
@@ -853,7 +1050,7 @@ function renderChatList(messages) {
     box.innerHTML = messages.map(m => {
         const isMe = m.sender_id === window.currentUser.id;
         const time = new Date(m.created_at).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-        return `<div class="chat-bubble ${isMe ? 'me' : 'other'}">${!isMe ? `<div class="chat-sender"><span>${escapeHtml(m.sender_nama)} (${m.sender_role})</span> <span class="chat-time">${time}</span></div>` : `<div class="chat-sender" style="justify-content:flex-end;"><span class="chat-time">${time}</span></div>`}<div>${escapeHtml(m.message)}</div></div>`;
+        return `<div class="chat-bubble ${isMe ? 'me' : 'other'}">${!isMe ? `<div class="chat-sender"><span><i class="fa-solid fa-user-circle"></i> ${escapeHtml(m.sender_nama)} <span style="font-weight:400; font-size:0.7rem; background:var(--border); padding:0.15rem 0.4rem; border-radius:4px; margin-left:4px;">${m.sender_role}</span></span> <span class="chat-time">${time}</span></div>` : `<div class="chat-sender" style="justify-content:flex-end;"><span class="chat-time">${time}</span></div>`}<div>${escapeHtml(m.message)}</div></div>`;
     }).join('');
     box.scrollTop = box.scrollHeight;
 }
@@ -877,18 +1074,15 @@ function initChatListener() {
         }).subscribe();
 }
 
-// ==============================
-// MODALS & SUBMIT JADWAL
-// ==============================
 window.openJadwalModal = function() {
     adminIsAddingJadwal = false;
-    document.getElementById('jadwalKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + (window.currentUser.kelas_list||[]).map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
+    document.getElementById('jadwalKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas Tujuan</option>` + (window.currentUser.kelas_list||[]).map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
     document.getElementById('jadwalJudul').value=''; document.getElementById('jadwalJamMulai').value=''; document.getElementById('jadwalJamSelesai').value=''; document.getElementById('jadwalRuangan').value=''; document.getElementById('jadwalCatatan').value='';
     document.getElementById('jadwalModal').classList.add('show');
 }
 window.openAdminAddJadwalModal = function() {
     adminIsAddingJadwal = true;
-    document.getElementById('jadwalKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + renderKelasOptionsGrouped();
+    document.getElementById('jadwalKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas Tujuan</option>` + renderKelasOptionsGrouped();
     document.getElementById('jadwalJudul').value=''; document.getElementById('jadwalJamMulai').value=''; document.getElementById('jadwalJamSelesai').value=''; document.getElementById('jadwalRuangan').value=''; document.getElementById('jadwalCatatan').value='';
     document.getElementById('jadwalModal').classList.add('show');
 }
@@ -900,12 +1094,12 @@ window.submitJadwal = async function() {
         catatan: document.getElementById('jadwalCatatan').value, pengajar_id: window.currentUser.id,
         pengajar_nama: adminIsAddingJadwal ? `${window.currentUser.nama} (Admin)` : window.currentUser.nama, status: 'pending'
     };
-    if(!payload.judul || !payload.tanggal || !payload.jam || !payload.kelas) return toast('Isi field wajib!', 'error');
+    if(!payload.judul || !payload.tanggal || !payload.jam || !payload.kelas) return toast('Harap isi field yang wajib!', 'error');
     setLoading('btn-jadwal-submit', true);
     const { error } = await window.sb.from('jadwal').insert(payload);
     setLoading('btn-jadwal-submit', false, 'Simpan Jadwal');
-    if(error) return toast('Gagal!', 'error');
-    closeModal('jadwalModal'); toast('Berhasil.'); adminIsAddingJadwal ? renderAdminJadwal() : renderPengajarJadwal();
+    if(error) return toast('Gagal menyimpan jadwal!', 'error');
+    closeModal('jadwalModal'); toast('Jadwal berhasil ditambahkan.'); adminIsAddingJadwal ? renderAdminJadwal() : renderPengajarJadwal();
 }
 
 window.openAdminEditJadwal = function(id, jud, tgl, jam, jamSel, ruang, cat) {
@@ -925,8 +1119,8 @@ window.submitAdminEditJadwal = async function() {
         jam: document.getElementById('adminJadwalJamMulai').value, jam_selesai: document.getElementById('adminJadwalJamSelesai').value,
         ruangan: document.getElementById('adminJadwalRuangan').value, catatan: document.getElementById('adminJadwalCatatan').value
     }).eq('id', editingJadwalId);
-    setLoading('btn-admin-jadwal-submit', false, 'Simpan');
-    closeModal('adminEditJadwalModal'); renderAdminJadwal(); toast('Diupdate');
+    setLoading('btn-admin-jadwal-submit', false, 'Simpan Perubahan');
+    closeModal('adminEditJadwalModal'); renderAdminJadwal(); toast('Jadwal berhasil diperbarui.');
 }
 
 window.openEditProfile = function() {
@@ -942,71 +1136,79 @@ window.submitEditProfile = async function() {
     const kelasList = [...document.querySelectorAll('#editClassCheckboxes input:checked')].map(c=>c.value);
     setLoading('btn-edit-profile',true);
     await window.sb.from('profiles').update({nama, kelas_list:kelasList}).eq('id', window.currentUser.id);
-    setLoading('btn-edit-profile',false,'Simpan');
-    closeModal('editProfileModal'); toast('Profile diupdate.'); loadProfileAndRoute();
+    setLoading('btn-edit-profile',false,'Simpan Perubahan');
+    closeModal('editProfileModal'); toast('Profile berhasil diperbarui.'); loadProfileAndRoute();
 }
 window.openSiswaCatatanModal = function(jId, jJudul, jTgl, jJam, exId, exTxt) {
     selectedJadwalForCatatan = jId; selectedCatatanId = exId;
-    document.getElementById('siswaJadwalInfo').innerHTML = `<strong>${jJudul}</strong><br>${jTgl} - ${jJam}`;
+    document.getElementById('siswaJadwalInfo').innerHTML = `Mata Pelajaran:<br><strong>${jJudul}</strong><br><br>Waktu:<br><strong>${jTgl} - ${jJam} WIB</strong>`;
     document.getElementById('siswaCatatanText').value = exTxt || '';
     document.getElementById('siswaAddCatatanModal').classList.add('show');
 }
 window.submitSiswaCatatan = async function() {
     const text = document.getElementById('siswaCatatanText').value;
-    if(!text) return toast('Catatan kosong', 'error');
+    if(!text) return toast('Catatan tidak boleh kosong', 'error');
     setLoading('btn-siswa-catatan',true);
     if(selectedCatatanId) {
         await window.sb.from('jadwal_catatan_siswa').update({catatan:text}).eq('id', selectedCatatanId);
     } else {
         await window.sb.from('jadwal_catatan_siswa').insert({jadwal_id: selectedJadwalForCatatan, siswa_id: window.currentUser.id, siswa_nama: window.currentUser.nama, catatan: text});
     }
-    setLoading('btn-siswa-catatan',false,'Simpan');
-    closeModal('siswaAddCatatanModal'); toast('Tersimpan.'); renderSiswaJadwal();
+    setLoading('btn-siswa-catatan',false,'Simpan Catatan');
+    closeModal('siswaAddCatatanModal'); toast('Catatan Anda tersimpan.'); renderSiswaJadwal();
 }
 window.renderSiswaMateri = async function() {
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-folder-open"></i> Soal <span>Latihan</span></div></div><div class="card"><div id="materi-list"><div class="loading-spinner"></div></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-regular fa-folder-open"></i> Akses <span>Materi Soal</span></div></div><div class="card"><div id="materi-list"><div class="loading-spinner"></div></div></div></div>`;
     const { data } = await window.sb.from('soal_files').select('*').in('kelas', window.currentUser.kelas_list||[]).order('created_at',{ascending:false});
-    document.getElementById('materi-list').innerHTML = (data&&data.length) ? data.map(f=>fileItemHtml(f,false)).join('') : 'Belum ada soal.';
+    document.getElementById('materi-list').innerHTML = (data&&data.length) ? data.map(f=>fileItemHtml(f,false)).join('') : `<div class="empty-state"><i class="fa-solid fa-folder-minus"></i><p>Belum ada soal/materi yang diupload untuk kelas Anda.</p></div>`;
 }
 window.renderPengajarUpload = async function() {
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-file-pdf"></i> Upload <span>Soal</span></div><button class="btn btn-green btn-sm" onclick="openUploadModal()"><i class="fa-solid fa-plus"></i> Upload</button></div><div class="card"><div id="pg-files-list"><div class="loading-spinner"></div></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-file-pdf"></i> Upload <span>Materi Soal</span></div><button class="btn btn-green btn-sm" onclick="openUploadModal()"><i class="fa-solid fa-plus"></i> Upload Baru</button></div><div class="card"><div id="pg-files-list"><div class="loading-spinner"></div></div></div></div>`;
     const { data } = await window.sb.from('soal_files').select('*').eq('pengajar_id', window.currentUser.id).order('created_at',{ascending:false});
-    document.getElementById('pg-files-list').innerHTML = (data&&data.length) ? data.map(f=>fileItemHtml(f,true)).join('') : 'Belum ada file.';
+    document.getElementById('pg-files-list').innerHTML = (data&&data.length) ? data.map(f=>fileItemHtml(f,true)).join('') : `<div class="empty-state"><i class="fa-solid fa-cloud-arrow-up"></i><p>Anda belum mengupload file apapun.</p></div>`;
 }
 window.openUploadModal = function() {
-    document.getElementById('fileKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas</option>` + (window.currentUser.kelas_list||[]).map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
+    document.getElementById('fileKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas Tujuan</option>` + (window.currentUser.kelas_list||[]).map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
     document.getElementById('uploadModal').classList.add('show');
 }
 window.submitUpload = async function() {
     const judul = document.getElementById('fileJudul').value, mapel = document.getElementById('fileMapel').value, kelas = document.getElementById('fileKelas').value;
     const file = document.getElementById('fileInput').files[0];
-    if(!judul || !kelas || !file) return toast('Lengkapi data', 'error');
+    if(!judul || !kelas || !file) return toast('Lengkapi semua data form!', 'error');
     setLoading('btn-upload-submit', true);
     try {
         const path = `soal/${kelas}/${Date.now()}_${file.name}`;
         await window.sb.storage.from('soal-pdf').upload(path, file, { contentType: 'application/pdf' });
         await window.sb.from('soal_files').insert({judul, mapel, kelas, storage_path: path, file_name: file.name, file_size: file.size, pengajar_id: window.currentUser.id, pengajar_nama: window.currentUser.nama});
-        closeModal('uploadModal'); toast('Berhasil'); renderPengajarUpload();
-    } catch(e) { toast('Gagal', 'error'); }
-    setLoading('btn-upload-submit', false, 'Upload');
+        closeModal('uploadModal'); toast('File berhasil diupload!'); renderPengajarUpload();
+    } catch(e) { toast('Gagal mengupload file', 'error'); }
+    setLoading('btn-upload-submit', false, 'Mulai Upload');
 }
 window.downloadFile = async function(path) {
     const { data } = await window.sb.storage.from('soal-pdf').createSignedUrl(path, 60);
     window.open(data.signedUrl, '_blank');
 }
 window.deleteFile = async function(id, path) {
-    if(!confirm('Hapus?')) return;
+    if(!confirm('Anda yakin ingin menghapus materi ini?')) return;
     await window.sb.storage.from('soal-pdf').remove([path]);
-    await window.sb.from('soal_files').delete().eq('id', id); toast('Dihapus'); renderPengajarUpload();
+    await window.sb.from('soal_files').delete().eq('id', id); toast('File dihapus.'); renderPengajarUpload();
 }
 function fileItemHtml(f, canDelete) {
-    return `<div class="file-item"><div class="file-icon">📄</div><div class="file-info"><div class="file-name">${escapeHtml(f.judul||f.file_name)}</div><div class="file-meta">${badgeKelas(f.kelas)}</div></div><div class="file-actions"><button class="btn btn-blue btn-sm" onclick="downloadFile('${f.storage_path}')"><i class="fa-solid fa-download"></i></button>${canDelete?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}','${f.storage_path}')"><i class="fa-solid fa-trash"></i></button>`:''}</div></div>`;
+    return `<div class="file-item"><div class="file-icon"><i class="fa-regular fa-file-pdf"></i></div><div class="file-info"><div class="file-name">${escapeHtml(f.judul||f.file_name)}</div><div class="file-meta">${badgeKelas(f.kelas)} ${f.mapel ? `• <span><i class="fa-solid fa-book"></i> ${escapeHtml(f.mapel)}</span>` : ''}</div></div><div class="file-actions"><button class="btn btn-blue btn-sm" onclick="downloadFile('${f.storage_path}')" title="Unduh"><i class="fa-solid fa-download"></i></button>${canDelete?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}','${f.storage_path}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>`:''}</div></div>`;
 }
+
 window.renderAdminSiswa = async function() {
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title">Kelola <span>Siswa</span></div></div><div class="card" id="admin-siswa-list"><div class="loading-spinner"></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-users-gear"></i> Kelola <span>Siswa</span></div></div><div class="card" style="padding:1rem;" id="admin-siswa-list"><div class="loading-spinner"></div></div></div>`;
     const { data } = await window.sb.from('profiles').select('*').eq('role', 'siswa');
-    document.getElementById('admin-siswa-list').innerHTML = data.length ? `<table style="width:100%;border-collapse:collapse;text-align:left;"><thead><tr><th style="padding:0.5rem;border-bottom:1px solid #ccc">Nama</th><th style="padding:0.5rem;border-bottom:1px solid #ccc">Email</th><th style="padding:0.5rem;border-bottom:1px solid #ccc">Aksi</th></tr></thead><tbody>${data.map(s=>`<tr><td style="padding:0.5rem;border-bottom:1px solid #eee">${s.nama}</td><td style="padding:0.5rem;border-bottom:1px solid #eee">${s.email}</td><td style="padding:0.5rem;border-bottom:1px solid #eee"><button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${s.id}', '${s.nama}', '${s.email}', '${(s.kelas_list||[]).join('|')}')">Edit</button></td></tr>`).join('')}</tbody></table>` : 'Kosong';
+    document.getElementById('admin-siswa-list').innerHTML = data.length ? `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.95rem;"><thead><tr><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Nama Lengkap</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Email Akun</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Aksi</th></tr></thead><tbody>${data.map(s=>`<tr style="transition:background 0.2s;"><td style="padding:1rem;border-bottom:1px solid var(--border);font-weight:600;">${s.nama}</td><td style="padding:1rem;border-bottom:1px solid var(--border);">${s.email}</td><td style="padding:1rem;border-bottom:1px solid var(--border);"><button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${s.id}', '${s.nama}', '${s.email}', '${(s.kelas_list||[]).join('|')}')"><i class="fa-solid fa-user-pen"></i> Atur Kelas</button></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty-state"><i class="fa-solid fa-users-slash"></i><p>Belum ada data siswa.</p></div>`;
 }
+
+window.renderAdminPengajar = async function() {
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-chalkboard-user"></i> Akun <span>Pengajar</span></div></div><div class="card" style="padding:1rem;" id="admin-pengajar-list"><div class="loading-spinner"></div></div></div>`;
+    const { data } = await window.sb.from('profiles').select('*').eq('role', 'pengajar');
+    document.getElementById('admin-pengajar-list').innerHTML = data.length ? `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.95rem;"><thead><tr><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Nama Pengajar</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Email Akun</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Status</th></tr></thead><tbody>${data.map(p=>`<tr style="transition:background 0.2s;"><td style="padding:1rem;border-bottom:1px solid var(--border);font-weight:600;">${p.nama}</td><td style="padding:1rem;border-bottom:1px solid var(--border);">${p.email}</td><td style="padding:1rem;border-bottom:1px solid var(--border);"><span class="badge badge-green">Aktif</span></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty-state"><i class="fa-solid fa-chalkboard"></i><p>Belum ada akun pengajar terdaftar.</p></div>`;
+}
+
 window.openAdminEditSiswa = function(id, nama, email, kList) {
     editingSiswaId = id; document.getElementById('adminEditNama').value = nama; document.getElementById('adminEditEmail').value = email;
     document.getElementById('adminEditKelasCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
@@ -1018,14 +1220,24 @@ window.submitAdminEditSiswa = async function() {
     const kList = [...document.querySelectorAll('#adminEditKelasCheckboxes input:checked')].map(c=>c.value);
     setLoading('btn-admin-edit', true);
     await window.sb.from('profiles').update({kelas_list: kList}).eq('id', editingSiswaId);
-    setLoading('btn-admin-edit', false, 'Simpan');
-    closeModal('adminEditSiswaModal'); renderAdminSiswa(); toast('Diupdate');
+    setLoading('btn-admin-edit', false, 'Simpan Data');
+    closeModal('adminEditSiswaModal'); renderAdminSiswa(); toast('Data kelas siswa berhasil diperbarui.');
 }
 
 window.onload = async function() {
+    const savedTheme = localStorage.getItem('imc_theme');
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        const btnIcon = document.querySelector('.theme-btn i');
+        if(btnIcon) btnIcon.className = 'fa-solid fa-sun';
+    }
+
     const { data } = await window.sb.auth.getSession();
     if(data.session) loadProfileAndRoute();
-    else showView('public');
+    else {
+        document.getElementById('initial-loader').classList.add('hidden');
+        showView('public');
+    }
     const tInput = document.getElementById('jadwalTanggal');
     if(tInput) tInput.value = new Date().toISOString().split('T')[0];
 };
