@@ -426,10 +426,11 @@
                     <option value="" disabled selected>Pilih Peran Pendaftaran</option>
                     <option value="siswa">Siswa</option>
                     <option value="pengajar">Pengajar</option>
+                    <option value="admin">Admin</option>
                 </select>
             </div>
             <div class="form-group" id="regClassWrap" style="display:none;">
-                <label class="form-label">Pilih Kelas (Bisa lebih dari satu)</label>
+                <label class="form-label" id="regClassLabel">Pilih Kelas (Bisa lebih dari satu)</label>
                 <div id="regClassCheckboxes" class="checkbox-kelas-wrap"></div>
             </div>
             <div style="display:flex; gap:1rem; margin-top:1.75rem;">
@@ -545,19 +546,39 @@ const KELAS_KATEGORI = {
         { value: "AAL", label: "AAL" }, { value: "AAU", label: "AAU" }, { value: "CPNS", label: "CPNS" },
         { value: "BINTARA", label: "Bintara" }, { value: "PIP", label: "PIP" },
     ],
-    "KEDINASAN GABUNGAN": [{ value: "KEDINASAN-GABUNGAN", label: "Kedinasan Gabungan" }]
+    "KEDINASAN GABUNGAN": [
+        { value: "KEDINASAN-GABUNGAN", label: "Kedinasan Gabungan" }
+    ],
+    "INTENSIF": [
+        { value: "INTENSIF-KEDINASAN", label: "Intensif Kedinasan" },
+        { value: "INTENSIF-KEDOKTERAN", label: "Intensif Kedokteran" },
+        { value: "INTENSIF-UTBK", label: "Intensif UTBK" }
+    ],
+    "KHUSUS": [
+        { value: "KHUSUS-PRIVAT", label: "Khusus Privat" },
+        { value: "KHUSUS-CAMP", label: "Khusus Karantina/Camp" },
+        { value: "KHUSUS-VIP", label: "Khusus VIP" }
+    ]
 };
 
 function getLabelKelas(val) {
     for (const kat in KELAS_KATEGORI) { const f = KELAS_KATEGORI[kat].find(k => k.value === val); if (f) return f.label; }
     return val;
 }
+
 function badgeKelas(val) {
     let kat = null;
     for (const k in KELAS_KATEGORI) { if(KELAS_KATEGORI[k].some(x => x.value === val)) kat = k; }
-    const cls = kat === 'KEDINASAN' ? 'badge-blue' : (kat ? 'badge-red' : 'badge-muted');
+    
+    let cls = 'badge-muted';
+    if (kat === 'KEDINASAN' || kat === 'KEDINASAN GABUNGAN') cls = 'badge-blue';
+    else if (kat === 'KEDOKTERAN & UMUM') cls = 'badge-red';
+    else if (kat === 'INTENSIF') cls = 'badge-yellow';
+    else if (kat === 'KHUSUS') cls = 'badge-green';
+
     return `<span class="badge ${cls}">${getLabelKelas(val)}</span>`;
 }
+
 function renderKelasCheckboxesGrouped() {
     let html = '';
     for (const kat in KELAS_KATEGORI) {
@@ -708,7 +729,18 @@ window.switchTab = function(t) {
     document.getElementById('tab-login').classList.toggle('active', t==='login');
     document.getElementById('tab-register').classList.toggle('active', t==='register');
 }
-window.onRegRoleChange = function() { document.getElementById('regClassWrap').style.display = 'block'; }
+
+// UPDATE LOGIKA REGISTRASI UNTUK MENDUKUNG ROLE ADMIN
+window.onRegRoleChange = function() { 
+    const role = document.getElementById('regRole').value;
+    const wrap = document.getElementById('regClassWrap');
+    if (role === 'admin') {
+        wrap.style.display = 'none'; // Admin tidak perlu memilih kelas
+    } else {
+        wrap.style.display = 'block';
+        document.getElementById('regClassLabel').textContent = role === 'pengajar' ? 'Pilih Kelas Pengajar (Bisa lebih dari satu)' : 'Pilih Kelas Siswa';
+    }
+}
 
 window.processLogin = async function() {
     const email = document.getElementById('loginEmail').value.trim();
@@ -737,13 +769,18 @@ window.processRegister = async function() {
     const kelas = [...document.querySelectorAll('#regClassCheckboxes input:checked')].map(c=>c.value);
     
     if (!nama || !email || !password || !role) return toast('Harap isi semua field!', 'error');
-    if (kelas.length === 0) return toast('Pilih minimal satu kelas tujuan!', 'error');
+    if (role !== 'admin' && kelas.length === 0) return toast('Pilih minimal satu kelas tujuan!', 'error');
 
     setLoading('btn-register', true);
     try {
-        const { error } = await window.sb.auth.signUp({ email, password, options: { data: { nama, role, kelas_list: kelas } } });
+        const payloadData = { nama, role };
+        if (role === 'siswa') payloadData.kelas = kelas[0]; // Siswa biasanya 1 kelas utama
+        if (role === 'pengajar') payloadData.kelas_list = kelas;
+        if (role === 'admin') payloadData.kelas_list = [];
+
+        const { error } = await window.sb.auth.signUp({ email, password, options: { data: payloadData } });
         if(error) throw error;
-        closeAuth(); toast('Akun berhasil dibuat! Silakan masuk.');
+        closeAuth(); toast('Akun berhasil dibuat! Silakan konfirmasi email atau masuk.');
     } catch(e) { toast(e.message, 'error'); }
     setLoading('btn-register', false, 'Daftar Akun');
 }
