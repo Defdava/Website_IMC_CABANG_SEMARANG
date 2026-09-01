@@ -52,7 +52,6 @@
             --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* Animated Background with Red and Green at 50% Transparency */
         @keyframes gradientAnimation {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -234,10 +233,13 @@
         .jadwal-meta { font-size: 0.85rem; color: var(--muted); display:flex; flex-wrap:wrap; align-items:center; gap: 0.5rem; margin-top: 0.3rem; }
         .jadwal-meta i { opacity: 0.7; }
 
-        .week-controls { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); backdrop-filter: blur(12px); padding: 0.75rem 1rem; border-radius: 9999px; border: 1px solid var(--glass-border); margin-bottom: 1.5rem; font-weight: 700; box-shadow: var(--shadow); }
-        .week-controls button { background: transparent; border: none; border-radius: 9999px; padding: 0.6rem 1.2rem; cursor: pointer; color: var(--text); font-family: 'Outfit'; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
-        .week-controls button:hover { background: var(--border); }
-        .week-label { font-size: 0.95rem; letter-spacing: 0.02em; padding: 0 1rem; }
+        .range-controls { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); backdrop-filter: blur(12px); padding: 0.75rem 1rem; border-radius: 9999px; border: 1px solid var(--glass-border); margin-bottom: 1.5rem; font-weight: 700; box-shadow: var(--shadow); flex-wrap: wrap; gap: 0.75rem; }
+        .range-controls button { background: transparent; border: none; border-radius: 9999px; padding: 0.6rem 1.2rem; cursor: pointer; color: var(--text); font-family: 'Outfit'; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .range-controls button:hover { background: var(--border); }
+        .range-label { font-size: 0.95rem; letter-spacing: 0.02em; padding: 0 1rem; }
+        .range-mode-selector { display: flex; gap: 0.3rem; background: var(--border); padding: 0.25rem; border-radius: 9999px; }
+        .range-mode-btn { background: transparent; border: none; border-radius: 9999px; padding: 0.4rem 0.9rem; font-size: 0.8rem; font-weight: 700; cursor: pointer; color: var(--muted); font-family: 'Outfit'; transition: all 0.2s; }
+        .range-mode-btn.active { background: var(--card-bg-solid); color: var(--text); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
 
         .chat-container { display: flex; flex-direction: column; height: 65vh; background: var(--card-bg-solid); border-radius: var(--radius); border: 1px solid var(--glass-border); overflow: hidden; box-shadow: var(--shadow); }
         .chat-messages { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; background: rgba(0,0,0,0.02); }
@@ -441,12 +443,18 @@
     </div>
 </div>
 
-<!-- MODALS LAINNYA -->
+<!-- MODAL EDIT PROFILE -->
 <div id="editProfileModal" class="modal-overlay">
     <div class="modal-box">
         <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-user-pen" style="color:var(--red);margin-right:0.75rem;"></i> Edit Profile</div>
-        <div class="form-group"><label class="form-label">Nama Lengkap</label><input type="text" id="editNama" class="form-control"></div>
-        <div class="form-group" id="editKelasWrap" style="display:none;"><label class="form-label">Kelas</label><div id="editClassCheckboxes" class="checkbox-kelas-wrap"></div></div>
+        <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <input type="text" id="editNama" class="form-control">
+        </div>
+        <div class="form-group" id="editKelasWrap" style="display:none;">
+            <label class="form-label">Kelas</label>
+            <div id="editClassCheckboxes" class="checkbox-kelas-wrap"></div>
+        </div>
         <div style="display:flex; gap:1rem; margin-top:2rem;">
             <button class="btn btn-outline" onclick="closeModal('editProfileModal')" style="flex:1;">Batal</button>
             <button class="btn btn-red" onclick="submitEditProfile()" style="flex:2;" id="btn-edit-profile">Simpan Perubahan</button>
@@ -454,15 +462,16 @@
     </div>
 </div>
 
+<!-- MODAL ADMIN EDIT SISWA -->
 <div id="adminEditSiswaModal" class="modal-overlay">
     <div class="modal-box">
-        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-edit" style="color:var(--blue);margin-right:0.75rem;"></i> Edit Data Siswa</div>
+        <div class="modal-title" style="margin-bottom:1.5rem;"><i class="fa-solid fa-edit" style="color:var(--blue);margin-right:0.75rem;"></i> Edit Jenis Kelas Siswa</div>
         <div class="form-group"><label class="form-label">Nama</label><input type="text" id="adminEditNama" class="form-control" disabled style="opacity:0.7;"></div>
         <div class="form-group"><label class="form-label">Email</label><input type="email" id="adminEditEmail" class="form-control" disabled style="opacity:0.7;"></div>
-        <div class="form-group"><label class="form-label">Atur Kelas</label><div id="adminEditKelasCheckboxes" class="checkbox-kelas-wrap"></div></div>
+        <div class="form-group"><label class="form-label">Pilih Jenis Kelas (Bisa Lebih Dari Satu)</label><div id="adminEditKelasCheckboxes" class="checkbox-kelas-wrap"></div></div>
         <div style="display:flex; gap:1rem; margin-top:2rem;">
             <button class="btn btn-outline" onclick="closeModal('adminEditSiswaModal')" style="flex:1;">Batal</button>
-            <button class="btn btn-blue" onclick="submitAdminEditSiswa()" style="flex:2;" id="btn-admin-edit">Simpan Data</button>
+            <button class="btn btn-blue" onclick="submitAdminEditSiswa()" style="flex:2;" id="btn-admin-edit">Simpan Jenis Kelas</button>
         </div>
     </div>
 </div>
@@ -496,6 +505,7 @@
             <div class="form-group"><label class="form-label">Jam Selesai</label><input type="time" id="adminJadwalJamSelesai" class="form-control"></div>
         </div>
         <div class="form-group"><label class="form-label">Ruangan / Link</label><input type="text" id="adminJadwalRuangan" class="form-control"></div>
+        <div class="form-group"><label class="form-label">Kelas Tujuan</label><select id="adminJadwalKelas" class="form-select"></select></div>
         <div class="form-group"><label class="form-label">Catatan</label><textarea id="adminJadwalCatatan" class="form-control"></textarea></div>
         <div style="display:flex; gap:1rem; margin-top:1.5rem;">
             <button class="btn btn-outline" onclick="closeModal('adminEditJadwalModal')" style="flex:1;">Batal</button>
@@ -684,37 +694,88 @@ function togglePassword(inputId, iconEl) {
 
 window.currentUser = null;
 let currentView = 'public';
-let currentWeekOffset = 0;
+let currentOffset = 0;
+let rangeMode = '1w'; // '1w' (1 Minggu), '2w' (2 Minggu), '1m' (1 Bulan)
 let adminFilterStatus = 'all';
 let adminFilterKelas = 'all';
+let siswaFilterKelas = 'all'; 
 let chatSubscription = null;
 let editingSiswaId = null, editingJadwalId = null, selectedJadwalForCatatan = null, selectedCatatanId = null;
 let adminIsAddingJadwal = false;
 
-function getWeekRange(offsetWeeks = 0) {
-    const curr = new Date();
-    const first = curr.getDate() - curr.getDay() + 1 + (offsetWeeks * 7);
-    const start = new Date(curr.setDate(first));
-    const end = new Date(curr.setDate(first + 6));
-    return {
-        start: start.toISOString().split('T')[0],
-        end: end.toISOString().split('T')[0],
-        label: `${start.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} - ${end.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}`
-    };
+function getUserKelasArray() {
+    if (!window.currentUser) return [];
+    let list = [];
+    if (window.currentUser.kelas) list.push(window.currentUser.kelas);
+    if (window.currentUser.kelas_list && Array.isArray(window.currentUser.kelas_list)) list.push(...window.currentUser.kelas_list);
+    return [...new Set(list)].filter(Boolean);
 }
-function changeWeek(offset) {
-    currentWeekOffset += offset;
+
+// Perhitungan range tanggal akurat (1 minggu, 2 minggu, atau 1 bulan kalender)
+function getDateRange(offset = 0, mode = '1w') {
+    const curr = new Date();
+    
+    if (mode === '1m') {
+        // Mode 1 Bulan (berdasarkan bulan kalender berjalan + offset)
+        curr.setMonth(curr.getMonth() + offset);
+        const start = new Date(curr.getFullYear(), curr.getMonth(), 1);
+        const end = new Date(curr.getFullYear(), curr.getMonth() + 1, 0); // Hari terakhir bulan tersebut
+        return {
+            start: start.toISOString().split('T')[0],
+            end: end.toISOString().split('T')[0],
+            label: `${start.toLocaleDateString('id-ID',{month:'long', year:'numeric'})}`
+        };
+    } else {
+        // Mode 1 Minggu atau 2 Minggu (berbasis blok hari Senin s.d. Minggu)
+        // Cari hari Senin dari minggu referensi saat ini
+        const dayOfWeek = curr.getDay(); // 0 = Minggu, 1 = Senin, dst.
+        const diffToMonday = curr.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+        
+        const spanDays = mode === '2w' ? 14 : 7;
+        const totalOffsetDays = offset * 7; // Navigasi per minggu
+        
+        const start = new Date(curr.setDate(diffToMonday + totalOffsetDays));
+        const end = new Date(curr.setDate(start.getDate() + spanDays - 1));
+        
+        return {
+            start: start.toISOString().split('T')[0],
+            end: end.toISOString().split('T')[0],
+            label: `${start.toLocaleDateString('id-ID',{day:'numeric',month:'short'})} - ${end.toLocaleDateString('id-ID',{day:'numeric',month:'short'})}`
+        };
+    }
+}
+
+function changeOffset(val) {
+    currentOffset += val;
+    refreshCurrentJadwalView();
+}
+
+function setRangeMode(mode) {
+    rangeMode = mode;
+    currentOffset = 0; // Reset ke periode aktif saat mode diganti
+    refreshCurrentJadwalView();
+}
+
+function refreshCurrentJadwalView() {
     if (currentView === 'siswa-jadwal') renderSiswaJadwal();
     else if (currentView === 'pengajar-jadwal') renderPengajarJadwal();
     else if (currentView === 'admin-jadwal') renderAdminJadwal();
 }
-function renderWeekControls() {
-    const range = getWeekRange(currentWeekOffset);
+
+function renderRangeControls() {
+    const range = getDateRange(currentOffset, rangeMode);
     return `
-    <div class="week-controls">
-        <button onclick="changeWeek(-1)"><i class="fa-solid fa-chevron-left"></i> <span style="display:none;@media(min-width:480px){display:inline;}">Minggu Lalu</span></button>
-        <div class="week-label">${range.label}</div>
-        <button onclick="changeWeek(1)"><span style="display:none;@media(min-width:480px){display:inline;}">Minggu Depan</span> <i class="fa-solid fa-chevron-right"></i></button>
+    <div class="range-controls">
+        <button onclick="changeOffset(-1)"><i class="fa-solid fa-chevron-left"></i> <span style="display:none;@media(min-width:480px){display:inline;}">Sebelumnya</span></button>
+        <div style="display:flex; align-items:center; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+            <div class="range-label">${range.label}</div>
+            <div class="range-mode-selector">
+                <button class="range-mode-btn ${rangeMode==='1w'?'active':''}" onclick="setRangeMode('1w')">1 Mgg</button>
+                <button class="range-mode-btn ${rangeMode==='2w'?'active':''}" onclick="setRangeMode('2w')">2 Mgg</button>
+                <button class="range-mode-btn ${rangeMode==='1m'?'active':''}" onclick="setRangeMode('1m')">1 Bln</button>
+            </div>
+        </div>
+        <button onclick="changeOffset(1)"><span style="display:none;@media(min-width:480px){display:inline;}">Berikutnya</span> <i class="fa-solid fa-chevron-right"></i></button>
     </div>`;
 }
 
@@ -730,15 +791,14 @@ window.switchTab = function(t) {
     document.getElementById('tab-register').classList.toggle('active', t==='register');
 }
 
-// UPDATE LOGIKA REGISTRASI UNTUK MENDUKUNG ROLE ADMIN
 window.onRegRoleChange = function() { 
     const role = document.getElementById('regRole').value;
     const wrap = document.getElementById('regClassWrap');
     if (role === 'admin') {
-        wrap.style.display = 'none'; // Admin tidak perlu memilih kelas
+        wrap.style.display = 'none'; 
     } else {
         wrap.style.display = 'block';
-        document.getElementById('regClassLabel').textContent = role === 'pengajar' ? 'Pilih Kelas Pengajar (Bisa lebih dari satu)' : 'Pilih Kelas Siswa';
+        document.getElementById('regClassLabel').textContent = role === 'pengajar' ? 'Pilih Kelas Pengajar (Bisa lebih dari satu)' : 'Pilih Kelas Siswa (Bisa lebih dari satu)';
     }
 }
 
@@ -773,10 +833,11 @@ window.processRegister = async function() {
 
     setLoading('btn-register', true);
     try {
-        const payloadData = { nama, role };
-        if (role === 'siswa') payloadData.kelas = kelas[0]; // Siswa biasanya 1 kelas utama
-        if (role === 'pengajar') payloadData.kelas_list = kelas;
-        if (role === 'admin') payloadData.kelas_list = [];
+        const payloadData = { nama, role, kelas: kelas[0] || null, kelas_list: kelas };
+        if (role === 'admin') {
+            payloadData.kelas = null;
+            payloadData.kelas_list = [];
+        }
 
         const { error } = await window.sb.auth.signUp({ email, password, options: { data: payloadData } });
         if(error) throw error;
@@ -834,6 +895,7 @@ function renderRibbon(role) {
 
 window.showView = function(v) { 
     currentView = v; 
+    currentOffset = 0; // Reset offset saat pindah menu utama
     document.querySelectorAll('.ribbon-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-view')===v));
     
     if(v === 'public') renderPublic();
@@ -902,11 +964,12 @@ function jadwalItemHtml(j, roleType, catatanList=[]) {
         actionsHtml = `<button class="btn btn-yellow btn-sm" onclick="openSiswaCatatanModal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${formatJam}', '${mine?mine.id:''}', '${mine?(mine.catatan||'').replace(/'/g,"\\'").replace(/\n/g,'\\n'):''}')"><i class="fa-solid ${mine?'fa-pen':'fa-note-sticky'}"></i> ${mine?'Edit Catatan':'Buat Catatan'}</button>`;
     } else if (roleType === 'pengajar') {
         if (!isSelesai) {
-            actionsHtml += `<button class="btn btn-green btn-sm" onclick="fiksasiJadwal('${j.id}')"><i class="fa-solid fa-check"></i> Tandai Selesai</button>`;
+            actionsHtml += `<button class="btn btn-green btn-sm" onclick="fiksasiJadwal('${j.id}')"><i class="fa-solid fa-check"></i> Selesai</button>`;
         }
+        actionsHtml += `<button class="btn btn-blue btn-sm" onclick="openAdminEditJadwal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${j.jam||''}', '${j.jam_selesai||''}', '${(j.ruangan||'').replace(/'/g,"\\'")}', '${(j.catatan||'').replace(/'/g,"\\'")}', '${j.kelas||''}')"><i class="fa-solid fa-edit"></i> Edit</button>`;
         actionsHtml += `<button class="btn btn-danger btn-sm" onclick="deleteJadwal('${j.id}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>`;
     } else if (roleType === 'admin') {
-        actionsHtml += `<button class="btn btn-blue btn-sm" onclick="openAdminEditJadwal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${j.jam||''}', '${j.jam_selesai||''}', '${(j.ruangan||'').replace(/'/g,"\\'")}', '${(j.catatan||'').replace(/'/g,"\\'")}')"><i class="fa-solid fa-edit"></i> Edit</button>
+        actionsHtml += `<button class="btn btn-blue btn-sm" onclick="openAdminEditJadwal('${j.id}', '${(j.judul||'').replace(/'/g,"\\'")}', '${j.tanggal||''}', '${j.jam||''}', '${j.jam_selesai||''}', '${(j.ruangan||'').replace(/'/g,"\\'")}', '${(j.catatan||'').replace(/'/g,"\\'")}', '${j.kelas||''}')"><i class="fa-solid fa-edit"></i> Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deleteAdminJadwal('${j.id}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>`;
     }
 
@@ -939,7 +1002,7 @@ window.fiksasiJadwal = async function(id) {
     try {
         await window.sb.from('jadwal').update({ status: 'selesai' }).eq('id', id);
         toast('Jadwal berhasil ditandai selesai.');
-        renderPengajarJadwal();
+        refreshCurrentJadwalView();
     } catch(e) { toast('Gagal memproses pembaruan', 'error'); }
 }
 window.deleteJadwal = async function(id) {
@@ -952,25 +1015,72 @@ window.deleteAdminJadwal = async function(id) {
 }
 
 async function renderSiswaDashboard() {
-    const kList = window.currentUser.kelas_list || [];
+    const kList = getUserKelasArray();
     document.getElementById('app').innerHTML = `
     <div class="container">
         <div class="page-header"><div><div class="page-title">Halo, <span>${window.currentUser.nama.split(' ')[0]}</span> 👋</div><div style="color:var(--muted); font-size:1rem; margin-top:0.2rem;">Selamat datang di portal belajarmu.</div></div></div>
         <div class="card"><div class="card-title"><i class="fa-solid fa-file-invoice" style="color:var(--blue);"></i> Latihan Soal Terbaru</div><div id="siswa-materi-preview"><div class="loading-spinner"></div></div></div>
     </div>`;
-    if(!kList.length) return;
+    
+    if(!kList.length) {
+        return document.getElementById('siswa-materi-preview').innerHTML = `<div class="empty-state"><i class="fa-solid fa-ban"></i><p>Kelas aktif Anda belum diatur oleh Admin.</p></div>`;
+    }
+    
     const { data } = await window.sb.from('soal_files').select('*').in('kelas', kList).order('created_at',{ascending:false}).limit(3);
-    document.getElementById('siswa-materi-preview').innerHTML = data.length ? data.map(f => fileItemHtml(f, false)).join('') : `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>Belum ada file materi baru.</p></div>`;
+    document.getElementById('siswa-materi-preview').innerHTML = (data && data.length) ? data.map(f => fileItemHtml(f, false)).join('') : `<div class="empty-state"><i class="fa-solid fa-box-open"></i><p>Belum ada file materi baru.</p></div>`;
+}
+
+function renderSiswaKelasOptionsForFilter(selectedVal, userKelasList) {
+    let html = `<option value="all" ${selectedVal === 'all' ? 'selected' : ''}>Semua Kelas Saya</option>`;
+    userKelasList.forEach(kVal => {
+        html += `<option value="${kVal}" ${selectedVal === kVal ? 'selected' : ''}>${getLabelKelas(kVal)}</option>`;
+    });
+    return html;
+}
+
+window.setSiswaFilterKelas = function(val) {
+    siswaFilterKelas = val;
+    renderSiswaJadwal();
 }
 
 async function renderSiswaJadwal() {
-    const range = getWeekRange(currentWeekOffset);
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-regular fa-calendar-days"></i> Jadwal <span>Belajar</span></div></div>${renderWeekControls()}<div class="card"><div id="jadwal-list"><div class="loading-spinner"></div></div></div></div>`;
-    const kList = window.currentUser.kelas_list || [];
-    if(!kList.length) return document.getElementById('jadwal-list').innerHTML = `<div class="empty-state"><i class="fa-solid fa-ban"></i><p>Anda belum terdaftar di kelas manapun.</p></div>`;
-    const { data } = await window.sb.from('jadwal').select('*').in('kelas', kList).gte('tanggal', range.start).lte('tanggal', range.end).order('tanggal');
-    const cMap = await loadCatatanMap(data.map(j=>j.id));
-    document.getElementById('jadwal-list').innerHTML = data.length ? data.map(j => jadwalItemHtml(j, 'siswa', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Tidak ada jadwal belajar di minggu ini.</p></div>`;
+    const range = getDateRange(currentOffset, rangeMode);
+    const kList = getUserKelasArray();
+
+    document.getElementById('app').innerHTML = `
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title"><i class="fa-regular fa-calendar-days"></i> Jadwal <span>Belajar</span></div>
+        </div>
+        ${renderRangeControls()}
+        
+        <div class="filter-status-bar">
+            <select class="filter-select" onchange="setSiswaFilterKelas(this.value)" style="width: 100%; max-width: 300px;">
+                ${renderSiswaKelasOptionsForFilter(siswaFilterKelas, kList)}
+            </select>
+        </div>
+
+        <div class="card"><div id="jadwal-list"><div class="loading-spinner"></div></div></div>
+    </div>`;
+    
+    if(!kList.length) {
+        return document.getElementById('jadwal-list').innerHTML = `<div class="empty-state"><i class="fa-solid fa-ban"></i><p>Anda belum terdaftar di kelas manapun. Hubungi admin untuk mengatur jenis kelas Anda.</p></div>`;
+    }
+    
+    let targetKelasQuery = kList;
+    if (siswaFilterKelas !== 'all') {
+        targetKelasQuery = [siswaFilterKelas];
+    }
+
+    const { data } = await window.sb.from('jadwal')
+        .select('*')
+        .in('kelas', targetKelasQuery)
+        .gte('tanggal', range.start)
+        .lte('tanggal', range.end)
+        .order('tanggal');
+        
+    const cMap = await loadCatatanMap((data || []).map(j=>j.id));
+    document.getElementById('jadwal-list').innerHTML = (data && data.length) ? data.map(j => jadwalItemHtml(j, 'siswa', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><p>Tidak ada jadwal belajar pada rentang tanggal ini untuk pilihan kelas Anda.</p></div>`;
 }
 
 async function renderPengajarDashboard() {
@@ -978,11 +1088,11 @@ async function renderPengajarDashboard() {
 }
 
 async function renderPengajarJadwal() {
-    const range = getWeekRange(currentWeekOffset);
-    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-calendar-plus"></i> Kelola <span>Jadwal</span></div><button class="btn btn-red btn-sm" onclick="openJadwalModal()"><i class="fa-solid fa-plus"></i> Buat Jadwal</button></div>${renderWeekControls()}<div class="card"><div id="pg-jadwal-full"><div class="loading-spinner"></div></div></div></div>`;
+    const range = getDateRange(currentOffset, rangeMode);
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-calendar-plus"></i> Kelola <span>Jadwal</span></div><button class="btn btn-red btn-sm" onclick="openJadwalModal()"><i class="fa-solid fa-plus"></i> Buat Jadwal</button></div>${renderRangeControls()}<div class="card"><div id="pg-jadwal-full"><div class="loading-spinner"></div></div></div></div>`;
     const { data } = await window.sb.from('jadwal').select('*').eq('pengajar_id', window.currentUser.id).gte('tanggal', range.start).lte('tanggal', range.end).order('tanggal');
-    const cMap = await loadCatatanMap(data.map(j=>j.id));
-    document.getElementById('pg-jadwal-full').innerHTML = data.length ? data.map(j => jadwalItemHtml(j, 'pengajar', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><p>Anda belum membuat jadwal mengajar di minggu ini.</p></div>`;
+    const cMap = await loadCatatanMap((data || []).map(j=>j.id));
+    document.getElementById('pg-jadwal-full').innerHTML = (data && data.length) ? data.map(j => jadwalItemHtml(j, 'pengajar', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><p>Anda belum membuat jadwal mengajar pada rentang tanggal ini.</p></div>`;
 }
 
 async function renderAdminDashboard() {
@@ -1005,7 +1115,7 @@ window.setAdminFilterKelas = function(kelas) {
 }
 
 async function renderAdminJadwal() {
-    const range = getWeekRange(currentWeekOffset);
+    const range = getDateRange(currentOffset, rangeMode);
     document.getElementById('app').innerHTML = `
     <div class="container">
         <div class="page-header">
@@ -1015,7 +1125,7 @@ async function renderAdminJadwal() {
                 <button class="btn btn-red btn-sm" onclick="openAdminAddJadwalModal()"><i class="fa-solid fa-plus"></i> Jadwal Baru</button>
             </div>
         </div>
-        ${renderWeekControls()}
+        ${renderRangeControls()}
         
         <div class="filter-status-bar">
             <button class="filter-btn ${adminFilterStatus === 'all' ? 'active' : ''}" onclick="setAdminFilterStatus('all')">Semua</button>
@@ -1044,11 +1154,11 @@ async function renderAdminJadwal() {
     const { data } = await query.order('tanggal');
     const cMap = await loadCatatanMap((data || []).map(j=>j.id));
     
-    document.getElementById('admin-jadwal-list').innerHTML = (data && data.length) ? data.map(j => jadwalItemHtml(j, 'admin', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><p>Tidak ada jadwal dengan kriteria ini.</p></div>`;
+    document.getElementById('admin-jadwal-list').innerHTML = (data && data.length) ? data.map(j => jadwalItemHtml(j, 'admin', cMap[j.id]||[])).join('') : `<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><p>Tidak ada jadwal dengan kriteria ini pada rentang tanggal terpilih.</p></div>`;
 }
 
 window.exportExcelJadwal = async function() {
-    const range = getWeekRange(currentWeekOffset);
+    const range = getDateRange(currentOffset, rangeMode);
     let query = window.sb.from('jadwal').select('*').gte('tanggal', range.start).lte('tanggal', range.end);
     
     if (adminFilterStatus === 'pending') query = query.or('status.eq.pending,status.is.null');
@@ -1113,7 +1223,8 @@ function initChatListener() {
 
 window.openJadwalModal = function() {
     adminIsAddingJadwal = false;
-    document.getElementById('jadwalKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas Tujuan</option>` + (window.currentUser.kelas_list||[]).map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
+    const kList = getUserKelasArray();
+    document.getElementById('jadwalKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas Tujuan</option>` + kList.map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
     document.getElementById('jadwalJudul').value=''; document.getElementById('jadwalJamMulai').value=''; document.getElementById('jadwalJamSelesai').value=''; document.getElementById('jadwalRuangan').value=''; document.getElementById('jadwalCatatan').value='';
     document.getElementById('jadwalModal').classList.add('show');
 }
@@ -1136,10 +1247,12 @@ window.submitJadwal = async function() {
     const { error } = await window.sb.from('jadwal').insert(payload);
     setLoading('btn-jadwal-submit', false, 'Simpan Jadwal');
     if(error) return toast('Gagal menyimpan jadwal!', 'error');
-    closeModal('jadwalModal'); toast('Jadwal berhasil ditambahkan.'); adminIsAddingJadwal ? renderAdminJadwal() : renderPengajarJadwal();
+    closeModal('jadwalModal'); toast('Jadwal berhasil ditambahkan.'); 
+    if (adminIsAddingJadwal) renderAdminJadwal(); 
+    else if (currentView === 'pengajar-jadwal') renderPengajarJadwal();
 }
 
-window.openAdminEditJadwal = function(id, jud, tgl, jam, jamSel, ruang, cat) {
+window.openAdminEditJadwal = function(id, jud, tgl, jam, jamSel, ruang, cat, kelasVal) {
     editingJadwalId = id; 
     document.getElementById('adminJadwalJudul').value = jud; 
     document.getElementById('adminJadwalTanggal').value = tgl;
@@ -1147,35 +1260,66 @@ window.openAdminEditJadwal = function(id, jud, tgl, jam, jamSel, ruang, cat) {
     document.getElementById('adminJadwalJamSelesai').value = jamSel || '';
     document.getElementById('adminJadwalRuangan').value = ruang; 
     document.getElementById('adminJadwalCatatan').value = cat;
+
+    let kelasOptions = '';
+    if (window.currentUser.role === 'admin') {
+        kelasOptions = renderKelasOptionsGrouped();
+    } else {
+        const kList = getUserKelasArray();
+        kelasOptions = kList.map(k => `<option value="${k}">${getLabelKelas(k)}</option>`).join('');
+    }
+    
+    document.getElementById('adminJadwalKelas').innerHTML = kelasOptions;
+    document.getElementById('adminJadwalKelas').value = kelasVal;
+    
     document.getElementById('adminEditJadwalModal').classList.add('show');
 }
 window.submitAdminEditJadwal = async function() {
     setLoading('btn-admin-jadwal-submit', true);
     await window.sb.from('jadwal').update({
-        judul: document.getElementById('adminJadwalJudul').value, tanggal: document.getElementById('adminJadwalTanggal').value,
-        jam: document.getElementById('adminJadwalJamMulai').value, jam_selesai: document.getElementById('adminJadwalJamSelesai').value,
-        ruangan: document.getElementById('adminJadwalRuangan').value, catatan: document.getElementById('adminJadwalCatatan').value
+        judul: document.getElementById('adminJadwalJudul').value, 
+        tanggal: document.getElementById('adminJadwalTanggal').value,
+        jam: document.getElementById('adminJadwalJamMulai').value, 
+        jam_selesai: document.getElementById('adminJadwalJamSelesai').value,
+        ruangan: document.getElementById('adminJadwalRuangan').value, 
+        kelas: document.getElementById('adminJadwalKelas').value,
+        catatan: document.getElementById('adminJadwalCatatan').value
     }).eq('id', editingJadwalId);
     setLoading('btn-admin-jadwal-submit', false, 'Simpan Perubahan');
-    closeModal('adminEditJadwalModal'); renderAdminJadwal(); toast('Jadwal berhasil diperbarui.');
+    closeModal('adminEditJadwalModal'); 
+    refreshCurrentJadwalView();
+    toast('Jadwal berhasil diperbarui.');
 }
 
 window.openEditProfile = function() {
     document.getElementById('editNama').value = window.currentUser.nama;
-    document.getElementById('editKelasWrap').style.display = (window.currentUser.role !== 'admin') ? 'block' : 'none';
-    document.getElementById('editClassCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
-    const kList = window.currentUser.kelas_list || [];
-    document.querySelectorAll('#editClassCheckboxes input').forEach(cb => cb.checked = kList.includes(cb.value));
+    const kelasWrap = document.getElementById('editKelasWrap');
+    if (window.currentUser.role === 'siswa') {
+        kelasWrap.style.display = 'none';
+    } else {
+        kelasWrap.style.display = 'block';
+        document.getElementById('editClassCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
+        const kList = getUserKelasArray();
+        document.querySelectorAll('#editClassCheckboxes input').forEach(cb => cb.checked = kList.includes(cb.value));
+    }
     document.getElementById('editProfileModal').classList.add('show');
 }
+
 window.submitEditProfile = async function() {
     const nama = document.getElementById('editNama').value;
-    const kelasList = [...document.querySelectorAll('#editClassCheckboxes input:checked')].map(c=>c.value);
     setLoading('btn-edit-profile',true);
-    await window.sb.from('profiles').update({nama, kelas_list:kelasList}).eq('id', window.currentUser.id);
+    
+    let updateData = { nama };
+    if (window.currentUser.role !== 'siswa') {
+        const kelasList = [...document.querySelectorAll('#editClassCheckboxes input:checked')].map(c=>c.value);
+        updateData.kelas_list = kelasList;
+    }
+
+    await window.sb.from('profiles').update(updateData).eq('id', window.currentUser.id);
     setLoading('btn-edit-profile',false,'Simpan Perubahan');
     closeModal('editProfileModal'); toast('Profile berhasil diperbarui.'); loadProfileAndRoute();
 }
+
 window.openSiswaCatatanModal = function(jId, jJudul, jTgl, jJam, exId, exTxt) {
     selectedJadwalForCatatan = jId; selectedCatatanId = exId;
     document.getElementById('siswaJadwalInfo').innerHTML = `Mata Pelajaran:<br><strong>${jJudul}</strong><br><br>Waktu:<br><strong>${jTgl} - ${jJam} WIB</strong>`;
@@ -1194,18 +1338,31 @@ window.submitSiswaCatatan = async function() {
     setLoading('btn-siswa-catatan',false,'Simpan Catatan');
     closeModal('siswaAddCatatanModal'); toast('Catatan Anda tersimpan.'); renderSiswaJadwal();
 }
+
 window.renderSiswaMateri = async function() {
     document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-regular fa-folder-open"></i> Akses <span>Materi Soal</span></div></div><div class="card"><div id="materi-list"><div class="loading-spinner"></div></div></div></div>`;
-    const { data } = await window.sb.from('soal_files').select('*').in('kelas', window.currentUser.kelas_list||[]).order('created_at',{ascending:false});
+    const kList = getUserKelasArray();
+    
+    if(!kList.length) {
+         return document.getElementById('materi-list').innerHTML = `<div class="empty-state"><i class="fa-solid fa-ban"></i><p>Anda belum memiliki kelas aktif.</p></div>`;
+    }
+
+    const { data } = await window.sb.from('soal_files')
+        .select('*')
+        .in('kelas', kList)
+        .order('created_at',{ascending:false});
+        
     document.getElementById('materi-list').innerHTML = (data&&data.length) ? data.map(f=>fileItemHtml(f,false)).join('') : `<div class="empty-state"><i class="fa-solid fa-folder-minus"></i><p>Belum ada soal/materi yang diupload untuk kelas Anda.</p></div>`;
 }
+
 window.renderPengajarUpload = async function() {
     document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-file-pdf"></i> Upload <span>Materi Soal</span></div><button class="btn btn-green btn-sm" onclick="openUploadModal()"><i class="fa-solid fa-plus"></i> Upload Baru</button></div><div class="card"><div id="pg-files-list"><div class="loading-spinner"></div></div></div></div>`;
     const { data } = await window.sb.from('soal_files').select('*').eq('pengajar_id', window.currentUser.id).order('created_at',{ascending:false});
     document.getElementById('pg-files-list').innerHTML = (data&&data.length) ? data.map(f=>fileItemHtml(f,true)).join('') : `<div class="empty-state"><i class="fa-solid fa-cloud-arrow-up"></i><p>Anda belum mengupload file apapun.</p></div>`;
 }
 window.openUploadModal = function() {
-    document.getElementById('fileKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas Tujuan</option>` + (window.currentUser.kelas_list||[]).map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
+    const kList = getUserKelasArray();
+    document.getElementById('fileKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas Tujuan</option>` + kList.map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
     document.getElementById('uploadModal').classList.add('show');
 }
 window.submitUpload = async function() {
@@ -1237,7 +1394,16 @@ function fileItemHtml(f, canDelete) {
 window.renderAdminSiswa = async function() {
     document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-solid fa-users-gear"></i> Kelola <span>Siswa</span></div></div><div class="card" style="padding:1rem;" id="admin-siswa-list"><div class="loading-spinner"></div></div></div>`;
     const { data } = await window.sb.from('profiles').select('*').eq('role', 'siswa');
-    document.getElementById('admin-siswa-list').innerHTML = data.length ? `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.95rem;"><thead><tr><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Nama Lengkap</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Email Akun</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Aksi</th></tr></thead><tbody>${data.map(s=>`<tr style="transition:background 0.2s;"><td style="padding:1rem;border-bottom:1px solid var(--border);font-weight:600;">${s.nama}</td><td style="padding:1rem;border-bottom:1px solid var(--border);">${s.email}</td><td style="padding:1rem;border-bottom:1px solid var(--border);"><button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${s.id}', '${s.nama}', '${s.email}', '${(s.kelas_list||[]).join('|')}')"><i class="fa-solid fa-user-pen"></i> Atur Kelas</button></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty-state"><i class="fa-solid fa-users-slash"></i><p>Belum ada data siswa.</p></div>`;
+    
+    document.getElementById('admin-siswa-list').innerHTML = data.length ? `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.95rem;"><thead><tr><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Nama Lengkap</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Email Akun</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Kelas Saat Ini</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Aksi</th></tr></thead><tbody>${data.map(s => {
+        let kArr = [];
+        if(s.kelas) kArr.push(s.kelas);
+        if(s.kelas_list && Array.isArray(s.kelas_list)) kArr.push(...s.kelas_list);
+        kArr = [...new Set(kArr)].filter(Boolean);
+        const kelasBadgeHtml = kArr.length ? kArr.map(k => badgeKelas(k)).join(' ') : `<span class="badge badge-muted">Belum ada</span>`;
+
+        return `<tr style="transition:background 0.2s;"><td style="padding:1rem;border-bottom:1px solid var(--border);font-weight:600;">${s.nama}</td><td style="padding:1rem;border-bottom:1px solid var(--border);">${s.email}</td><td style="padding:1rem;border-bottom:1px solid var(--border);">${kelasBadgeHtml}</td><td style="padding:1rem;border-bottom:1px solid var(--border);"><button class="btn btn-blue btn-sm" onclick="openAdminEditSiswa('${s.id}', '${s.nama}', '${s.email}', '${kArr.join('|')}')"><i class="fa-solid fa-user-pen"></i> Atur Kelas</button></td></tr>`;
+    }).join('')}</tbody></table></div>` : `<div class="empty-state"><i class="fa-solid fa-users-slash"></i><p>Belum ada data siswa.</p></div>`;
 }
 
 window.renderAdminPengajar = async function() {
@@ -1246,19 +1412,40 @@ window.renderAdminPengajar = async function() {
     document.getElementById('admin-pengajar-list').innerHTML = data.length ? `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;text-align:left;font-size:0.95rem;"><thead><tr><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Nama Pengajar</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Email Akun</th><th style="padding:1rem;border-bottom:2px solid var(--border);color:var(--muted);font-weight:700;">Status</th></tr></thead><tbody>${data.map(p=>`<tr style="transition:background 0.2s;"><td style="padding:1rem;border-bottom:1px solid var(--border);font-weight:600;">${p.nama}</td><td style="padding:1rem;border-bottom:1px solid var(--border);">${p.email}</td><td style="padding:1rem;border-bottom:1px solid var(--border);"><span class="badge badge-green">Aktif</span></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty-state"><i class="fa-solid fa-chalkboard"></i><p>Belum ada akun pengajar terdaftar.</p></div>`;
 }
 
-window.openAdminEditSiswa = function(id, nama, email, kList) {
-    editingSiswaId = id; document.getElementById('adminEditNama').value = nama; document.getElementById('adminEditEmail').value = email;
+window.openAdminEditSiswa = function(id, nama, email, kListStr) {
+    editingSiswaId = id; 
+    document.getElementById('adminEditNama').value = nama; 
+    document.getElementById('adminEditEmail').value = email;
     document.getElementById('adminEditKelasCheckboxes').innerHTML = renderKelasCheckboxesGrouped();
-    const arr = kList.split('|').filter(Boolean);
-    document.querySelectorAll('#adminEditKelasCheckboxes input').forEach(cb => cb.checked = arr.includes(cb.value));
+    
+    const arr = kListStr.split('|').filter(Boolean);
+    document.querySelectorAll('#adminEditKelasCheckboxes input').forEach(cb => {
+        cb.checked = arr.includes(cb.value);
+    });
+    
     document.getElementById('adminEditSiswaModal').classList.add('show');
 }
+
 window.submitAdminEditSiswa = async function() {
     const kList = [...document.querySelectorAll('#adminEditKelasCheckboxes input:checked')].map(c=>c.value);
+    if(kList.length === 0) return toast('Pilih minimal satu jenis kelas untuk siswa!', 'error');
+
     setLoading('btn-admin-edit', true);
-    await window.sb.from('profiles').update({kelas_list: kList}).eq('id', editingSiswaId);
-    setLoading('btn-admin-edit', false, 'Simpan Data');
-    closeModal('adminEditSiswaModal'); renderAdminSiswa(); toast('Data kelas siswa berhasil diperbarui.');
+    
+    const { error } = await window.sb.from('profiles').update({ 
+        kelas: kList[0], 
+        kelas_list: kList 
+    }).eq('id', editingSiswaId);
+    
+    setLoading('btn-admin-edit', false, 'Simpan Jenis Kelas');
+    
+    if(error) {
+        toast('Gagal memperbarui jenis kelas siswa.', 'error');
+    } else {
+        closeModal('adminEditSiswaModal'); 
+        renderAdminSiswa(); 
+        toast('Jenis kelas siswa berhasil diperbarui dan langsung aktif!');
+    }
 }
 
 window.onload = async function() {
