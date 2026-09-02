@@ -884,7 +884,7 @@ function renderRibbon(role) {
     const menus = {
         siswa: [{ i:'fa-house', lbl:'Beranda', v:'siswa-dashboard' }, { i:'fa-calendar-days', lbl:'Jadwal', v:'siswa-jadwal' }, { i:'fa-folder-open', lbl:'Materi', v:'siswa-materi' }, { i:'fa-comments', lbl:'Diskusi', v:'chat-global'}],
         pengajar: [{ i:'fa-house', lbl:'Beranda', v:'pengajar-dashboard' }, { i:'fa-calendar-plus', lbl:'Jadwal', v:'pengajar-jadwal' }, { i:'fa-file-arrow-up', lbl:'Upload', v:'pengajar-upload' }, { i:'fa-comments', lbl:'Diskusi', v:'chat-global'}],
-        admin: [{ i:'fa-gauge-high', lbl:'Panel', v:'admin-dashboard' }, { i:'fa-users', lbl:'Siswa', v:'admin-siswa' }, { i:'fa-calendar-check', lbl:'Jadwal', v:'admin-jadwal' }, { i:'fa-comments', lbl:'Diskusi', v:'chat-global'}]
+        admin: [{ i:'fa-gauge-high', lbl:'Panel', v:'admin-dashboard' }, { i:'fa-users', lbl:'Siswa', v:'admin-siswa' }, { i:'fa-calendar-check', lbl:'Jadwal', v:'admin-jadwal' }, { i:'fa-folder-open', lbl:'Materi', v:'admin-materi' }, { i:'fa-comments', lbl:'Diskusi', v:'chat-global'}]
     };
     document.getElementById('ribbon-links').innerHTML = menus[role].map(m => `
         <button class="ribbon-btn" onclick="showView('${m.v}')" data-view="${m.v}">
@@ -909,6 +909,7 @@ window.showView = function(v) {
     else if(v === 'admin-siswa') renderAdminSiswa();
     else if(v === 'admin-pengajar') renderAdminPengajar();
     else if(v === 'admin-jadwal') renderAdminJadwal();
+    else if(v === 'admin-materi') renderAdminMateri();
     else if(v === 'chat-global') renderChatGlobal();
 }
 
@@ -1102,7 +1103,7 @@ async function renderAdminDashboard() {
     document.getElementById('admin-stats').innerHTML = `
         <div class="stat-card" onclick="showView('admin-siswa')"><div class="stat-num">${users.filter(u=>u.role==='siswa').length}</div><div class="stat-label"><i class="fa-solid fa-user-graduate"></i> Total Siswa</div></div>
         <div class="stat-card" onclick="showView('admin-pengajar')"><div class="stat-num">${users.filter(u=>u.role==='pengajar').length}</div><div class="stat-label"><i class="fa-solid fa-chalkboard-user"></i> Total Pengajar</div></div>
-        <div class="stat-card"><div class="stat-num">${jCount||0}</div><div class="stat-label"><i class="fa-regular fa-calendar-check"></i> Total Jadwal</div></div>`;
+        <div class="stat-card" onclick="showView('admin-jadwal')"><div class="stat-num">${jCount||0}</div><div class="stat-label"><i class="fa-regular fa-calendar-check"></i> Total Jadwal</div></div>`;
 }
 
 window.setAdminFilterStatus = function(status) {
@@ -1360,6 +1361,13 @@ window.renderPengajarUpload = async function() {
     const { data } = await window.sb.from('soal_files').select('*').eq('pengajar_id', window.currentUser.id).order('created_at',{ascending:false});
     document.getElementById('pg-files-list').innerHTML = (data&&data.length) ? data.map(f=>fileItemHtml(f,true)).join('') : `<div class="empty-state"><i class="fa-solid fa-cloud-arrow-up"></i><p>Anda belum mengupload file apapun.</p></div>`;
 }
+
+window.renderAdminMateri = async function() {
+    document.getElementById('app').innerHTML = `<div class="container"><div class="page-header"><div class="page-title"><i class="fa-regular fa-folder-open"></i> Monitor <span>Materi Soal</span></div></div><div class="card"><div id="admin-materi-list"><div class="loading-spinner"></div></div></div></div>`;
+    const { data } = await window.sb.from('soal_files').select('*').order('created_at',{ascending:false});
+    document.getElementById('admin-materi-list').innerHTML = (data&&data.length) ? data.map(f=>fileItemHtml(f,true,true)).join('') : `<div class="empty-state"><i class="fa-solid fa-folder-minus"></i><p>Belum ada soal/materi yang diupload oleh pengajar.</p></div>`;
+}
+
 window.openUploadModal = function() {
     const kList = getUserKelasArray();
     document.getElementById('fileKelas').innerHTML = `<option value="" disabled selected>Pilih Kelas Tujuan</option>` + kList.map(k=>`<option value="${k}">${getLabelKelas(k)}</option>`).join('');
@@ -1385,10 +1393,12 @@ window.downloadFile = async function(path) {
 window.deleteFile = async function(id, path) {
     if(!confirm('Anda yakin ingin menghapus materi ini?')) return;
     await window.sb.storage.from('soal-pdf').remove([path]);
-    await window.sb.from('soal_files').delete().eq('id', id); toast('File dihapus.'); renderPengajarUpload();
+    await window.sb.from('soal_files').delete().eq('id', id); toast('File dihapus.'); 
+    if (currentView === 'admin-materi') renderAdminMateri();
+    else renderPengajarUpload();
 }
-function fileItemHtml(f, canDelete) {
-    return `<div class="file-item"><div class="file-icon"><i class="fa-regular fa-file-pdf"></i></div><div class="file-info"><div class="file-name">${escapeHtml(f.judul||f.file_name)}</div><div class="file-meta">${badgeKelas(f.kelas)} ${f.mapel ? `• <span><i class="fa-solid fa-book"></i> ${escapeHtml(f.mapel)}</span>` : ''}</div></div><div class="file-actions"><button class="btn btn-blue btn-sm" onclick="downloadFile('${f.storage_path}')" title="Unduh"><i class="fa-solid fa-download"></i></button>${canDelete?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}','${f.storage_path}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>`:''}</div></div>`;
+function fileItemHtml(f, canDelete, isAdmin = false) {
+    return `<div class="file-item"><div class="file-icon"><i class="fa-regular fa-file-pdf"></i></div><div class="file-info"><div class="file-name">${escapeHtml(f.judul||f.file_name)}</div><div class="file-meta">${badgeKelas(f.kelas)} ${f.mapel ? `• <span><i class="fa-solid fa-book"></i> ${escapeHtml(f.mapel)}</span>` : ''} ${isAdmin ? `• <span><i class="fa-solid fa-user-pen"></i> Pengajar: ${escapeHtml(f.pengajar_nama||'—')}</span>` : ''}</div></div><div class="file-actions"><button class="btn btn-blue btn-sm" onclick="downloadFile('${f.storage_path}')" title="Unduh"><i class="fa-solid fa-download"></i></button>${canDelete?`<button class="btn btn-danger btn-sm" onclick="deleteFile('${f.id}','${f.storage_path}')" title="Hapus"><i class="fa-solid fa-trash"></i></button>`:''}</div></div>`;
 }
 
 window.renderAdminSiswa = async function() {
